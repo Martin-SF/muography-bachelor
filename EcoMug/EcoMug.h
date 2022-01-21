@@ -322,7 +322,8 @@ public:
     return mGenerationMomentum;
   };
   /// Get the generation momentum
-  // DIABLED BY MARTIN SCHOENFELD because pybindings
+
+  // DISABLED BY MARTIN SCHOENFELD because i dont know how pybind this func
   // void GetGenerationMomentum(std::array<double, 3>& momentum) const {
   //   momentum  = {
   //     mGenerationMomentum*sin(mGenerationTheta)*cos(mGenerationPhi),
@@ -330,6 +331,7 @@ public:
   //     mGenerationMomentum*cos(mGenerationTheta)
   //   };
   // };
+  
   /// Get the generation theta
   double GetGenerationTheta() const {
     return mGenerationTheta;
