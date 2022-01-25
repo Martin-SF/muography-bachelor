@@ -2,22 +2,12 @@
 # from turtle import color
 import numpy as np
 import matplotlib.pyplot as plt
-from scipy.stats import norm
 from tqdm import tqdm
-import random
 import pandas as pd
+from scipy.stats import norm
 import proposal as pp
 from EcoMug.build import EcoMug
-
-def get_hist_array(data, bins):
-    # ax = plt.subplot()
-    # hist_output = ax.hist(data, bins=bins)
-    # hist_output = ax.hist(data, bins=bins)
-    # ax.close()
-    hist_output = np.histogram(data, bins=bins)
-    return ((np.delete(hist_output[1], [(len(hist_output[1])-1)], None)), 
-            (hist_output[0]/hist_output[0][0]))
-
+import os, sys
 
 plt.rcParams['figure.figsize'] = (8, 6)
 plt.rcParams['font.size'] = 12
@@ -27,14 +17,17 @@ plt.rcParams['axes.labelsize'] = 14
 def calculate_energy(p):
     return np.sqrt(p * p + pp.particle.MuMinusDef().mass**2)
 
+os.chdir(os.path.dirname(sys.argv[0]))
 # %%
 
 # 100%|██████████| 5/5 [13:29<00:00, 161.96s/it]
 # STATISTICS = int(1e7)
 # [1, 10, 50, 100, 1000]
 
-file_name = "EcoMug_muons3.hdf"
-for gen_momentum in tqdm([1, 10, 50, 100, 1000], disable=False):
+file_name = "EcoMug_muons1.hdf"
+energys = {1: 'darkblue', 10: 'indianred', 50: 'c', 100: 'green', 1000: 'm'}
+for gen_momentum in tqdm(energys.keys(), disable=False):
+    continue
     gen = EcoMug.EcoMug()
     # gen.SetUseSky()  # plane surface generation
     gen.SetUseHSphere()  # plane Sphere generation
@@ -46,7 +39,7 @@ for gen_momentum in tqdm([1, 10, 50, 100, 1000], disable=False):
     gen.SetMinimumMomentum(gen_momentum-offset)  # in GeV
     gen.SetMaximumMomentum(gen_momentum-offset)  # in GeV
 
-    STATISTICS = int(1e7)
+    STATISTICS = int(1e6)
     muon_position = []
     muon_p = []
     muon_theta = []
@@ -75,59 +68,80 @@ for gen_momentum in tqdm([1, 10, 50, 100, 1000], disable=False):
 # print(muon_e)
 # %%
 # file_name2 = file_name
+file_name2 = "EcoMug_muons_1e6.hdf"
 file_name2 = "EcoMug_muons2.hdf"
-mu_1gev    = pd.read_hdf(file_name2, key='GeV1')
-mu_10gev   = pd.read_hdf(file_name2, key='GeV10')
-mu_50gev   = pd.read_hdf(file_name2, key='GeV50')
-mu_100gev  = pd.read_hdf(file_name2, key='GeV100')
-mu_1000gev = pd.read_hdf(file_name2, key='GeV1000')
+# binsize = 300
+binsize = 10
 
-# data = np.cos(mu_1gev['theta']+np.pi)
-data = np.cos(mu_1gev['theta'])
-# bins = np.linspace(min(data), max(data), 100)
-# x, y = get_hist_array(data, bins)
-binsize = 100
-    # plt.plot(*get_hist_array(
-    #     np.cos(mu_1gev['theta']+np.pi), np.linspace(min(data), max(data), binsize)),
-    #      'r', label='1GeV')
-    # plt.plot(*get_hist_array(
-    #     np.cos(mu_10gev['theta']+np.pi), np.linspace(min(data), max(data), binsize)),
-    #      'b', label='10GeV')
-    # plt.plot(*get_hist_array(
-    #     np.cos(mu_100gev['theta']+np.pi), np.linspace(min(data), max(data), binsize)),
-    #      'g', label='100GeV')
-    # plt.plot(*get_hist_array(
-    #     np.cos(mu_1000gev['theta']+np.pi), np.linspace(min(data), max(data), binsize)),
-    #      'm', label='1000GeV')
+# mu_100gev  = pd.read_hdf(file_name2, key='GeV100')
 
-_ = plt.plot(*get_hist_array(
-    np.cos(mu_1gev['theta']), np.linspace(min(data), max(data), binsize)),
-     'r', label='1GeV')
-_ = plt.plot(*get_hist_array(
-    np.cos(mu_10gev['theta']), np.linspace(min(data), max(data), binsize)),
-     'b', label='10GeV')
-_ = plt.plot(*get_hist_array(
-np.cos(mu_50gev['theta']), np.linspace(min(data), max(data), binsize)),
-'c', label='50GeV')
-_ = plt.plot(*get_hist_array(
-    np.cos(mu_100gev['theta']), np.linspace(min(data), max(data), binsize)),
-     'g', label='100GeV')
-_ = plt.plot(*get_hist_array(
-    np.cos(mu_1000gev['theta']), np.linspace(min(data), max(data), binsize)),
-     'm', label='1000GeV')
+# linspace = np.linspace(min(data), max(data), binsize)
+# linspace = np.linspace(-1, 0, binsize)
+# def xy_data(**x, y):
+#     return *get_hist_array(np.cos(**x),y)
+
+# linspace = np.linspace(np.pi/2, np.pi, binsize)
 
 
-x = np.linspace(min(data), max(data), binsize)
-y = np.cos(x+1)**2
-_ = plt.plot(x, y,',', label=r'$\mathrm{cos}^2\theta$')
+def get_hist_array(data, bins):
+    # x, y = get_hist_array(data, bins)
+    hist = np.histogram(data, bins=bins)
+    x = np.delete(hist[1], [(len(hist[1])-1)], None)
+    y = hist[0]/hist[0][1]
+    return (x, y)
+
+p = 1000
+c = 'r'
+
+def change_azimuth_convention(a):
+    return -a + np.pi
+
+data = pd.read_hdf(file_name2, key=f'GeV{p}')
+theta = np.cos(change_azimuth_convention(data['theta']))
+# theta = data['theta']
+# hist, bin_edges = np.histogram(theta, bins=binsize)
+_ = plt.hist(theta, bins=1000, histtype='step')
+# %%
+hist
+# y, x = np.histogram(data['theta'], bins=linspace)
+
+x = np.delete(bin_edges, [(len(bin_edges)-1)], None)
+y = hist/hist[1]
+_ = plt.plot(x, y, c, label=f'{p} GeV')
+
+
+
+# for p, c in tqdm(energys.items(), disable=False):
+    # data = pd.read_hdf(file_name2, key=f'GeV{p}')
+    # hist, bin_edges = np.histogram(data['theta'], bins=linspace)
+    # # y, x = np.histogram(data['theta'], bins=linspace)
+    
+    # x = np.delete(bin_edges, [(len(bin_edges)-1)], None)
+    # y = hist/hist[1]
+    # _ = plt.hist(hist, bins=bin_edges)
+
+
+
+    # _ = plt.plot(x, y, c, label=f'{p} GeV')
+    # _ = plt.plot(*get_hist_array(
+    # np.cos(data['theta']), linspace),
+    #  c, label=f'{p} GeV')
+
+# x = linspace  # np.linspace(min(data), max(data), binsize)
+# x = np.arccos(linspace)  # np.linspace(min(data), max(data), binsize)
+
+# x = np.linspace(-np.pi, -np.pi/2, binsize)  # np.linspace(min(data), max(data), binsize)
+# y = np.cos(x)**2
+# _ = plt.plot(np.cos(x), y,'+', label=r'$\mathrm{cos}^2\theta$')
 
 plt.yscale('log')
-plt.ylim([1e-2, 1.1])
+plt.ylim([1e-2, 1e1])
 # plt.xlim([1, 0])
-plt.xlabel(r'$\mathrm{cos} \theta $')
+plt.xlabel(r'$\mathrm{cos} \;\theta $')
 plt.ylabel(r"$I/I_{\mathrm{vert}}$")
+# plt.tight_layout()
 plt.legend()
-
+plt.savefig('plot.pdf')
 
 
 # %%
