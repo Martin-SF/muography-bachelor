@@ -88,8 +88,8 @@ for gen_momentum in tqdm(energys.keys(), disable=False):
 gen = EcoMug.EcoMug()
 gen.SetUseHSphere()  # plane Sphere generation
 gen.SetSeed(1909)
-
-STATISTICS = int(1e6)
+file_name = "EcoMug_fullspectrum.hdf"
+STATISTICS = int(1e7)
 
 muon_pos = [None]*STATISTICS  # 2,13 - 2,24 s  
 # muon_pos = [([float]*3)]*STATISTICS  # same as [None]
@@ -97,23 +97,12 @@ muon_pos = [None]*STATISTICS  # 2,13 - 2,24 s
 muon_theta = [float]*STATISTICS
 muon_phi = [float]*STATISTICS
 muon_charge = [float]*STATISTICS
+muon_e = [float]*STATISTICS
 muon_p = np.empty(STATISTICS)
 # = np.empty(STATISTICS)  # 5 % slower
 # = []  # about as fast as preallocated
 
-# gen.Generate()
-# for event in tqdm(range(STATISTICS), disable=True):
-#     muon_pos[event]     = gen.GetGenerationPosition()
-#     muon_p[event]       = gen.GetGenerationMomentum()
-#     muon_theta[event]   = gen.GetGenerationTheta()
-#     muon_phi[event]     = gen.GetGenerationPhi()
-#     muon_charge[event]  = gen.GetCharge()
-
-# muon_e = calculate_energy_vectorized_GeV(muon_p)
-#%%
-from concurrent.futures import ThreadPoolExecutor
-# @jit(nopython=False)
-def generate():
+for event in tqdm(range(STATISTICS), disable=False):
     gen.Generate()
     muon_pos[event]     = gen.GetGenerationPosition()
     muon_p[event]       = gen.GetGenerationMomentum()
@@ -121,26 +110,16 @@ def generate():
     muon_phi[event]     = gen.GetGenerationPhi()
     muon_charge[event]  = gen.GetCharge()
 
-#%%
-%%time
-# 12*64*64
-with ThreadPoolExecutor(STATISTICS) as ex:
-    ex.map(generate(), np.arange(0, STATISTICS))
-muon_e = calculate_energy_vectorized_GeV(muon_p)
+muon_e = calculate_energy_vectorized_GeV(muon_p)  # faster than in for loop
 
-# df = pd.DataFrame()
-# df['position'] = muon_pos
-# muon_e = [calculate_energy_vectorized_GeV(p*1e3)/1e3 for p in muon_p]  # 100x slower 
-
-
-#%%
-%%time
+df = pd.DataFrame()
+df['position'] = muon_pos
 df['momentum'] = muon_p
 df['energy'] = muon_e
 df['theta'] = muon_theta
 df['phi'] = muon_phi
 df['charge'] = muon_charge
-# df.to_hdf(file_name, key=f'GeV{gen_momentum}')
+df.to_hdf(file_name, key=f'muons_{STATISTICS}')
 
 # print(muon_e)
 # %%
