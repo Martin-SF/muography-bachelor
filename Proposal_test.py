@@ -1,5 +1,5 @@
 # %%
-# import everything....
+# import everything, building interpolation tables...
 # from xml.dom.expatbuilder import theDOMImplementation
 from asyncio import exceptions
 import traceback
@@ -24,7 +24,6 @@ import proposal as pp
 pp.InterpolationSettings.tables_path = "/tmp"  # save interpolation tables to folder
 
 # config = "config_muography0_r.json"  # config_minimal  config_muography0
-# config = "config_muography0.json"
 # config = "config_minimal.json"
 # config = "config_earth.json"
 # config = "config_full_edit.json"
@@ -32,6 +31,7 @@ pp.InterpolationSettings.tables_path = "/tmp"  # save interpolation tables to fo
 # config = "config_full_onesector_nomultiplescattering.json"
 config = "config_full_onesector.json"
 config = "config_full.json"
+config = "config_muography0.json"
 
 prop_minus = pp.Propagator(
 	  particle_def=pp.particle.MuMinusDef(),
@@ -51,7 +51,17 @@ file_name2 = "EcoMug_fullspectrum.hdf"
 STATISTICS = int(1e6)
 data = pd.read_hdf(file_name2, key=f'muons_{STATISTICS}')
 # %%
+# plot ecomug data
+energies = data['energy']*1000
+bins = np.geomspace(min(energies), max(energies), 40)
+plt.xscale('log')
+plt.xlabel(r'$E \,/\, \mathrm{MeV} $')
+plt.ylabel("Frequency")
+_ = plt.hist(energies, bins=bins, log=True) 
+# %%
 # EcoMug generating and proposal propagation
+
+STATISTICS = int(1e3)
 
 distances = [float]*STATISTICS
 energies = [float]*STATISTICS
@@ -63,19 +73,18 @@ max_distance = 1e20
 
 errors = 0
 for event in tqdm(range(STATISTICS), disable=False):
-    position = data['position']
-    momentum = data['momentum']*1e3
-    theta = data['theta']
-    phi = data['phi']
-    charge = data['charge']
+    position = data['position'][event]
+    momentum = data['momentum'][event]*1e3
+    theta = data['theta'][event]
+    phi = data['phi'][event]
+    charge = data['charge'][event]
     # current_muon = f'[{event}]: position: {position} direction: (1, {phi}, {theta}) momentum (MeV): {momentum} charge: {charge}\n'
     current_muon = f'[{event}], {position}, (1, {phi}, {theta}), {momentum} MeV, {charge}\n'
     muons.append(current_muon)
 
     init_state.position = pp.Cartesian3D(position)
-    init_state.momentum = momentum # initial momentum in MeV
+    init_state.momentum = momentum  # initial momentum in MeV
     init_state.direction = pp.Cartesian3D(pp.Spherical3D(1, phi, theta))
-    # state.direction = pp.Cartesian3D(pp.Spherical3D(radius, azimuth, zenith))
     try:
         if (charge == 1):
             track = prop_plus.propagate(init_state, max_distance, min_energy)
@@ -95,11 +104,11 @@ for event in tqdm(range(STATISTICS), disable=False):
 with open('muons.txt', 'w') as f:
     f.writelines(muons) 
 
-# bins = np.geomspace(min(energies), max(energies), 200)
-# plt.xscale('log')
-# plt.xlabel(r'$E \,/\, \mathrm{MeV} $')
-# plt.ylabel("Frequency")
-# _ = plt.hist(energies, bins=bins, log=True) 
+bins = np.geomspace(min(energies), max(energies), 200)
+plt.xscale('log')
+plt.xlabel(r'$E \,/\, \mathrm{MeV} $')
+plt.ylabel("Frequency")
+_ = plt.hist(energies, bins=bins, log=True) 
 
 # plt.show()
 # plt.close()
