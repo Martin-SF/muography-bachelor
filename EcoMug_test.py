@@ -89,28 +89,29 @@ gen = EcoMug.EcoMug()
 gen.SetUseHSphere()  # plane Sphere generation
 gen.SetSeed(1909)
 file_name = "EcoMug_fullspectrum.hdf"
-STATISTICS = int(1e7)
+STATISTICS = int(1e5)
 
 muon_pos = [None]*STATISTICS  # 2,13 - 2,24 s  
+muon_pos = np.empty(STATISTICS*3, dtype=float).reshape(STATISTICS, 3) 
 # muon_pos = [([float]*3)]*STATISTICS  # same as [None]
 # muon_pos = np.empty(STATISTICS*3).reshape(STATISTICS, 3)  dataframe doesnt take array as pos, need to take a len(list)=3 list for storing it as object 
 muon_theta = [float]*STATISTICS
 muon_phi = [float]*STATISTICS
 muon_charge = [float]*STATISTICS
 muon_e = [float]*STATISTICS
-muon_p = np.empty(STATISTICS)
+muon_p = np.empty(STATISTICS, dtype=float)
 # = np.empty(STATISTICS)  # 5 % slower
 # = []  # about as fast as preallocated
 
 for event in tqdm(range(STATISTICS), disable=False):
     gen.Generate()
-    muon_pos[event]     = gen.GetGenerationPosition()
+    muon_pos[event]     = np.array(gen.GetGenerationPosition())
     muon_p[event]       = gen.GetGenerationMomentum()
     muon_theta[event]   = gen.GetGenerationTheta()
     muon_phi[event]     = gen.GetGenerationPhi()
     muon_charge[event]  = gen.GetCharge()
 
-muon_e = calculate_energy_vectorized_GeV(muon_p)  # faster than in for loop
+muon_e = calculate_energy_vectorized_GeV(muon_p)  # faster than for loop
 
 df = pd.DataFrame()
 df['position'] = muon_pos
@@ -119,7 +120,7 @@ df['energy'] = muon_e
 df['theta'] = muon_theta
 df['phi'] = muon_phi
 df['charge'] = muon_charge
-df.to_hdf(file_name, key=f'muons_{STATISTICS}')
+# df.to_hdf(file_name, key=f'muons_{STATISTICS}')
 
 # print(muon_e)
 # %%

@@ -38,8 +38,8 @@
 		},
 		"cuts":
 		{
-			"e_cut": 500,
-			"v_cut": 1,
+			"e_cut": "inf",
+			"v_cut": 0.05,
 			"cont_rand": false
 		}
 	},
@@ -50,23 +50,11 @@
 				{
 					"hierarchy": 0,
 					"shape": "sphere",
-					"origin": [0, 0, 0],
-					"outer_radius": 500e2
+					"origin": [0, 0, 500e2],
+					"inner_radius" : 0, 
+					"outer_radius": 1e20    
 				}
-			]
-		},
-		{
-			"medium": "standardrock", 
-			"geometries": [
-				{
-					"hierarchy": 1,
-					"shape": "box",
-					"origin": [0, 0, 0],
-					"length": 1e2,
-					"width": 1e2,
-					"height": 1e2
-				}
-			]
+				]
 		}
 	]
 }
