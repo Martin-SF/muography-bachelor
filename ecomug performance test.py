@@ -8,6 +8,8 @@ import proposal as pp
 from EcoMug.build import EcoMug
 from numba import vectorize
 import my_py_lib.stopwatch as stopwatch
+from importlib import reload
+reload(stopwatch)
 
 
 MU_MINUS_MASS = pp.particle.MuMinusDef().mass
@@ -31,7 +33,8 @@ def calculate_energy_vectorized_GeV(momentum):
 ############################################################
 ############################################################
 t = stopwatch.stopwatch(
-    title='generating ecomug muons', selfexecutiontime_in_ms=0, time_unit='ms'
+    title='generating ecomug muons', selfexecutiontime_micros=0,
+    time_unit='ms'
 )
 t.task('generating ecomug object')
 gen = EcoMug.EcoMug()
@@ -39,10 +42,11 @@ gen.SetUseHSphere()  # plane Sphere generation
 gen.SetSeed(1909)
 file_name = "EcoMug_fullspectrum.hdf"
 file_name = "EcoMug_test_new_position.hdf"
-STATISTICS = int(1e4)
+STATISTICS = int(1e7)
 
-t.task('generating arrays')
-muon_pos = [None]*STATISTICS  # 2,13 - 2,24 s
+# t.task('generating arrays')
+t.task('generating arrays + generating', True)
+# muon_pos = [None]*STATISTICS  # 2,13 - 2,24 s
 # muon_pos = np.zeros(STATISTICS*3, dtype=float).reshape(STATISTICS, 3)
 muon_pos = np.zeros(shape=(STATISTICS, 3), dtype=float)
 # muon_pos = [([float]*3)]*STATISTICS  # same as [None]
@@ -61,7 +65,7 @@ muon_charge = np.zeros(STATISTICS, dtype=int)
 muon_e = np.zeros(STATISTICS, dtype=float)
 
 
-t.task('generating muons')
+# t.task('generating muons')
 # = np.zeros(STATISTICS)  # 5 % slower
 # = []  # about as fast as preallocated
 
@@ -88,6 +92,9 @@ for event in tqdm(range(STATISTICS), disable=False):
 
 
 t.task('calculation energy')
+t.stop(silent=True)
+quit()
+#%%
 muon_e = calculate_energy_vectorized_GeV(muon_p)  # faster than for loop
 
 t.task('write to df')
@@ -104,7 +111,8 @@ df['charge'] = muon_charge
 
 t.task('write to HDF file')
 df.to_hdf(file_name, key=f'muons_{STATISTICS}')
-t.stop(silent=False)
+# t.stop(silent=False)
+t.stop(silent=True)
 
 
 # ---generating ecomug muons on phobos---

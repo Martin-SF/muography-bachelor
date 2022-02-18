@@ -17,7 +17,7 @@ class stopwatch:
                 time_unit = 'ms',
                 min_task_name_length = 10,
                 min_time_length = 7,
-                selfexecutiontime_in_ms = 0):
+                selfexecutiontime_micros = 0):
         self.mode = mode
         self.title = title
         self.return_results = return_results
@@ -25,7 +25,7 @@ class stopwatch:
         self.time_unit = time_unit
         self.min_task_name_length = min_task_name_length
         self.min_time_length = min_time_length
-        self.selfexecutiontime = selfexecutiontime_in_ms / int(1e6)
+        self.selfexecutiontime = selfexecutiontime_micros / int(1e6)
         self.__stopwatch_running = False
         if (start):
             self.task(task_name, print_task)
@@ -59,7 +59,7 @@ class stopwatch:
             if (self.return_results):
                 return self.task_durations
 
-    def stop(self, task_name = 'TOTAL', silent = False):
+    def stop(self, silent = False, task_name = 'TOTAL', ):
         if (not self.__stopwatch_running):
             raise ValueError('Error: stopwatch has to be started!')
         self.task(task_name)
