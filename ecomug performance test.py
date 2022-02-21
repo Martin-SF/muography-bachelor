@@ -15,16 +15,6 @@ reload(stopwatch)
 MU_MINUS_MASS = pp.particle.MuMinusDef().mass
 
 
-@vectorize(nopython=True)
-def change_azimuth_convention(angle_in_rad):
-    return -angle_in_rad + np.pi
-
-
-@vectorize(nopython=True)
-def calculate_energy_vectorized_GeV(momentum):
-    One_momentum_in_MeV = 1000
-    return np.sqrt(momentum * momentum +
-                        (MU_MINUS_MASS/One_momentum_in_MeV)**2)
 
 
 ###########  GERERATING WITH ECOMUG
@@ -42,21 +32,11 @@ gen.SetUseHSphere()  # plane Sphere generation
 gen.SetSeed(1909)
 file_name = "EcoMug_fullspectrum.hdf"
 file_name = "EcoMug_test_new_position.hdf"
-STATISTICS = int(1e7)
+STATISTICS = int(1e4) # 1e7:4.5min; 1e6:27s; 2e5:5,4s; 1e4: 0,3s
 
 # t.task('generating arrays')
 t.task('generating arrays + generating', True)
-# muon_pos = [None]*STATISTICS  # 2,13 - 2,24 s
-# muon_pos = np.zeros(STATISTICS*3, dtype=float).reshape(STATISTICS, 3)
 muon_pos = np.zeros(shape=(STATISTICS, 3), dtype=float)
-# muon_pos = [([float]*3)]*STATISTICS  # same as [None]
-# muon_pos = np.empty(STATISTICS*3).reshape(STATISTICS, 3)  dataframe doesnt take array as pos, need to take a len(list)=3 list for storing it as object 
-
-# muon_theta = [float]*STATISTICS
-# muon_phi = [float]*STATISTICS
-# muon_charge = [int]*STATISTICS
-# muon_e = [float]*STATISTICS
-# muon_p = [float]*STATISTICS
 
 muon_p = np.zeros(STATISTICS, dtype=float)
 muon_theta = np.zeros(STATISTICS, dtype=float)
@@ -64,10 +44,10 @@ muon_phi = np.zeros(STATISTICS, dtype=float)
 muon_charge = np.zeros(STATISTICS, dtype=int)
 muon_e = np.zeros(STATISTICS, dtype=float)
 
-
 # t.task('generating muons')
 # = np.zeros(STATISTICS)  # 5 % slower
 # = []  # about as fast as preallocated
+# = [float]*STATISTICS  # about as fast as preallocated
 
 # t1 = stopwatch.stopwatch(title = 'generating ecomug muons', selfexecutiontime_in_ms=1.4, time_unit='µs')
 # t1.task()
@@ -93,7 +73,7 @@ for event in tqdm(range(STATISTICS), disable=False):
 
 t.task('calculation energy')
 t.stop(silent=True)
-quit()
+# quit()
 #%%
 muon_e = calculate_energy_vectorized_GeV(muon_p)  # faster than for loop
 

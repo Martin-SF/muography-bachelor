@@ -26,10 +26,10 @@
 				{
 					"hierarchy": 20,
 					"shape": "Cylinder",
-					"origin": [0, 0, -120e2],
-					"inner_radius" : 0,
-					"outer_radius": 20e2,
-					"height": 120e2
+					"origin": [0, 0, -50e2],
+					"inner_radius" : 49e2,
+					"outer_radius": 50e2,
+					"height": 100e2
 				}
 			]
 		},
@@ -37,12 +37,12 @@
 			"medium": "Copper", 
 			"geometries": [
 				{
-					"hierarchy": 0,
+					"hierarchy": 20,
 					"shape": "Cylinder",
-					"origin": [0, 0, -120e2],
-					"inner_radius" : 50e2,
-					"outer_radius": 60e2,
-					"height": 220e2
+					"origin": [0, 0, -99e2],
+					"inner_radius" : 0,
+					"outer_radius": 50e2,
+					"height": 2e2
 				}
 			]
 		}

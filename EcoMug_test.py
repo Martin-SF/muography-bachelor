@@ -21,11 +21,17 @@ def change_azimuth_convention(angle_in_rad):
     return -angle_in_rad + np.pi
 
 
+# calculate energy from momentum, expecting GeV, 
+# calculating MU_MINUS_MASS to GeV with One_momentum_in_MeV
 @vectorize(nopython=True)
 def calculate_energy_vectorized_GeV(momentum):
     One_momentum_in_MeV = 1000
-    return np.sqrt(momentum * momentum + (MU_MINUS_MASS/One_momentum_in_MeV)**2)
+    return np.sqrt(momentum * momentum +
+                        (MU_MINUS_MASS/One_momentum_in_MeV)**2)
 
+
+change_azimuth_convention(0)
+calculate_energy_vectorized_GeV(0)
 
 energys = {1: 'darkblue', 10: 'indianred', 50: 'c', 100: 'green', 1000: 'm'}
 
@@ -86,53 +92,44 @@ for gen_momentum in tqdm(energys.keys(), disable=False):
     df.to_hdf(file_name, key=f'GeV{gen_momentum}')
 # %%
 # %%time
-# GERERATING WITH ECOMUG
+# GERERATING spectras WITH ECOMUG
 ############################################################
 ############################################################
 ############################################################
 ############################################################
-t = stopwatch.stopwatch(title='generating ecomug muons', selfexecutiontime_in_ms=0, time_unit='ms')
+t = stopwatch.stopwatch(title='generating ecomug muons', selfexecutiontime_micros=0, time_unit='ms')
 t.task('generating ecomug object')
 gen = EcoMug.EcoMug()
-gen.SetUseHSphere()  # plane Sphere generation
+# gen.SetUseHSphere()  # plane Sphere generation
+gen.SetUseSky()  # plane surface generation
+gen.SetSkySize((0, 0))  # x and y size of the plane
+gen.SetSkyCenterPosition((0, 0, 0))  # (x,y,z) position of the center of the plane
+gen.SetMinimumMomentum(60)  # in GeV
+# 66 for min 100 standardrock
+
 gen.SetSeed(1909)
-file_name = "EcoMug_fullspectrum.hdf"
 file_name = "EcoMug_test_new_position.hdf"
-STATISTICS = int(1e4)
+file_name = "EcoMug_fullspectrum.hdf"
+file_name = "EcoMug_highenergy.hdf"
+file_name = "EcoMug_highenergy_pos0.hdf"
+STATISTICS = int(1e7) # 1e7:4.5min; 1e6:27s; 2e5:5,4s; 1e4: 0,3s
 
 t.task('generating arrays')
-muon_pos = [None]*STATISTICS  # 2,13 - 2,24 s
-# muon_pos = np.zeros(STATISTICS*3, dtype=float).reshape(STATISTICS, 3)
 muon_pos = np.zeros(shape=(STATISTICS, 3), dtype=float)
-# muon_pos = [([float]*3)]*STATISTICS  # same as [None]
-# muon_pos = np.empty(STATISTICS*3).reshape(STATISTICS, 3)  dataframe doesnt take array as pos, need to take a len(list)=3 list for storing it as object 
-
-# muon_theta = [float]*STATISTICS
-# muon_phi = [float]*STATISTICS
-# muon_charge = [int]*STATISTICS
-# muon_e = [float]*STATISTICS
-# muon_p = [float]*STATISTICS
-
 muon_p = np.zeros(STATISTICS, dtype=float)
 muon_theta = np.zeros(STATISTICS, dtype=float)
 muon_phi = np.zeros(STATISTICS, dtype=float)
 muon_charge = np.zeros(STATISTICS, dtype=int)
 muon_e = np.zeros(STATISTICS, dtype=float)
 
-
 t.task('generating muons')
-# = np.zeros(STATISTICS)  # 5 % slower
-# = []  # about as fast as preallocated
-
 # t1 = stopwatch.stopwatch(title = 'generating ecomug muons', selfexecutiontime_in_ms=1.4, time_unit='µs')
-# t1.task()
 for event in tqdm(range(STATISTICS), disable=False):
     # t1.stop(silent=True)
     # t1.task('generate')  # 60% of time
     gen.Generate()
     # t1.task('writing data')  # 40% of time
     # t1.task('writing pos')
-    # muon_pos[event] = np.array(gen.GetGenerationPosition())  # 12 µs
     muon_pos[event] = gen.GetGenerationPosition()  # 7 µs
     # t1.task('writing p')
     muon_p[event] = gen.GetGenerationMomentum()
@@ -254,12 +251,3 @@ plt.tight_layout()
 
 # plt.axis([1, 0, 1e-2, 1e0])
 # _ = 
-
-# %%
-
-# arr = np.array([[1,2,3,4], [5,6,7,8], [9,10,11,12]])
-# arr = np.array([1,2,3,4])
-t = _[1]
-t = np.delete(_[1], [9], None)
-# _[1] = t
-_[0]

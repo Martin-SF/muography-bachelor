@@ -76,7 +76,8 @@ def plotCubeAt(pos=(0,0,0), size=(1,1,1), ax=None, **kwargs):
 def plot_3D_start_end(dataset, detector_pos, detector_size, elev=30.0, azim=30, 
                         alpha=0.1, name = 'plot_3D_start_end', title = 'plot_3D_start_end', dpi=400, show=True, **kwargs):
     # original function by dominik baar
-    fig = plt.figure(figsize=(16, 16))
+    # fig = plt.figure(figsize=(16, 16))
+    fig = plt.figure(figsize=(8, 8))
     ax = plt.axes(projection='3d')
     ax.set_xlabel('x [cm]')
     ax.set_ylabel('y [cm]')
@@ -85,10 +86,10 @@ def plot_3D_start_end(dataset, detector_pos, detector_size, elev=30.0, azim=30,
     ls = dataset[:,0:3].reshape((-1,2,3))
     # name = '\n\n\n\n\n\n\n\n\n'+name
     ax.set_title(title, pad = -200)
-    plotCubeAt(pos=detector_pos, size=detector_size, ax=ax, color='r', alpha=1)
+    # plotCubeAt(pos=detector_pos, size=detector_size, ax=ax, color='r', alpha=1)
     ax.plot(dataset[:,0], dataset[:,1], dataset[:,2], '.', c='orange', markersize=4)
-    collection = Line3DCollection(ls, linewidths=0.5, colors='blue', alpha=alpha, zorder=0, label = f'# of particles {len(dataset)/2:.0f}')
-    ax.add_collection(collection)
+    # collection = Line3DCollection(ls, linewidths=0.5, colors='blue', alpha=alpha, zorder=0, label = f'# of particles {len(dataset)/2:.0f}')
+    # ax.add_collection(collection)
     plotCubeAt(pos=detector_pos, size=detector_size, ax=ax, color='black', alpha=1)
 
     ax.plot(dataset[0,0], dataset[0,1], dataset[0,2], '.', c='black', markersize=40, zorder=4, label='position of 1st particle')
