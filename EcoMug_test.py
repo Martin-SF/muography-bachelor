@@ -33,63 +33,9 @@ def calculate_energy_vectorized_GeV(momentum):
 change_azimuth_convention(0)
 calculate_energy_vectorized_GeV(0)
 
-energys = {1: 'darkblue', 10: 'indianred', 50: 'c', 100: 'green', 1000: 'm'}
 
 # os.chdir(os.path.dirname(sys.argv[0]))
-# %%
-# GERERATING MULTIPLE single-ENERGYS WITH ECOMUG (fig 4 plot)
-############################################################
-############################################################
-############################################################
-############################################################
 
-# 100%|██████████| 5/5 [13:29<00:00, 161.96s/it]
-# STATISTICS = int(1e7)
-# [1, 10, 50, 100, 1000]
-
-file_name = "EcoMug_muons_2-sphere-r-1.hdf"
-file_name = "EcoMug_muons_2-sky-width-10.hdf"
-for gen_momentum in tqdm(energys.keys(), disable=False):
-    # continue
-    gen = EcoMug.EcoMug()
-    gen.SetUseSky()  # plane surface generation
-    gen.SetSkySize((10, 10))  # x and y size of the plane
-    # gen.SetSkyCenterPosition((0, 0, 0))  # (x,y,z) position of the center
-    #   of the plane
-    # gen.SetUseHSphere()  # plane Sphere generation
-    # gen.SetHSphereRadius(1)
-    # gen.SetUseCylinder()
-    gen.SetSeed(1909)
-    # gen_momentum = 1
-    offset = 0
-    gen.SetMinimumMomentum(gen_momentum-offset)  # in GeV
-    gen.SetMaximumMomentum(gen_momentum-offset)  # in GeV
-
-    STATISTICS = int(1e6)
-    muon_pos = [None]*STATISTICS
-    muon_p = [float]*STATISTICS
-    muon_theta = [float]*STATISTICS
-    muon_phi = [float]*STATISTICS
-    muon_charge = [float]*STATISTICS
-
-    for event in tqdm(range(STATISTICS), disable=False):
-        gen.Generate()
-        muon_pos[event] = gen.GetGenerationPosition()
-        muon_p[event] = gen.GetGenerationMomentum()
-        muon_theta[event] = gen.GetGenerationTheta()
-        muon_phi[event] = gen.GetGenerationPhi()
-        muon_charge[event] = gen.GetCharge()
-
-    muon_e = calculate_energy_vectorized_GeV(muon_p)
-
-    df = pd.DataFrame()
-    df['position'] = muon_pos
-    df['momentum'] = muon_p
-    df['energy'] = muon_e
-    df['theta'] = muon_theta
-    df['phi'] = muon_phi
-    df['charge'] = muon_charge
-    df.to_hdf(file_name, key=f'GeV{gen_momentum}')
 # %%
 # %%time
 # GERERATING spectras WITH ECOMUG
@@ -162,9 +108,65 @@ t.task('write to HDF file')
 df.to_hdf(file_name, key=f'muons_{STATISTICS}')
 t.stop(silent=False)
 print(muon_e)
+
+
+# %%
+# GERERATING MULTIPLE single-ENERGYS WITH ECOMUG (fig 4 plot)
+############################################################
+############################################################
+############################################################
+############################################################
+
+# 100%|██████████| 5/5 [13:29<00:00, 161.96s/it]
+# STATISTICS = int(1e7)
+# [1, 10, 50, 100, 1000]
+energys = {1: 'darkblue', 10: 'indianred', 50: 'c', 100: 'green', 1000: 'm'}
+file_name = "EcoMug_muons_2-sphere-r-1.hdf"
+file_name = "EcoMug_muons_2-sky-width-10.hdf"
+for gen_momentum in tqdm(energys.keys(), disable=False):
+    # continue
+    gen = EcoMug.EcoMug()
+    gen.SetUseSky()  # plane surface generation
+    gen.SetSkySize((10, 10))  # x and y size of the plane
+    # gen.SetSkyCenterPosition((0, 0, 0))  # (x,y,z) position of the center
+    #   of the plane
+    # gen.SetUseHSphere()  # plane Sphere generation
+    # gen.SetHSphereRadius(1)
+    # gen.SetUseCylinder()
+    gen.SetSeed(1909)
+    # gen_momentum = 1
+    offset = 0
+    gen.SetMinimumMomentum(gen_momentum-offset)  # in GeV
+    gen.SetMaximumMomentum(gen_momentum-offset)  # in GeV
+
+    STATISTICS = int(1e6)
+    muon_pos = [None]*STATISTICS
+    muon_p = [float]*STATISTICS
+    muon_theta = [float]*STATISTICS
+    muon_phi = [float]*STATISTICS
+    muon_charge = [float]*STATISTICS
+
+    for event in tqdm(range(STATISTICS), disable=False):
+        gen.Generate()
+        muon_pos[event] = gen.GetGenerationPosition()
+        muon_p[event] = gen.GetGenerationMomentum()
+        muon_theta[event] = gen.GetGenerationTheta()
+        muon_phi[event] = gen.GetGenerationPhi()
+        muon_charge[event] = gen.GetCharge()
+
+    muon_e = calculate_energy_vectorized_GeV(muon_p)
+
+    df = pd.DataFrame()
+    df['position'] = muon_pos
+    df['momentum'] = muon_p
+    df['energy'] = muon_e
+    df['theta'] = muon_theta
+    df['phi'] = muon_phi
+    df['charge'] = muon_charge
+    df.to_hdf(file_name, key=f'GeV{gen_momentum}')
 # %%
 # %%time
-# PLOTTING
+# PLOTTING (FIG. 4)
 ############################################################
 ############################################################
 ############################################################
