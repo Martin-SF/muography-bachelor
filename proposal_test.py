@@ -34,8 +34,8 @@ def transform_position_posxyz(x, y, z):
     return a
 
 
-import os, sys
-os.chdir(os.path.dirname(sys.argv[0]))
+# import os, sys
+# os.chdir(os.path.dirname(sys.argv[0]))
 # show_plots = False
 
 plt.rcParams['figure.figsize'] = (8, 6)
@@ -91,6 +91,7 @@ t.task('create prop_minus')
     # config = "config_min_muo.json"
 }
 config = "config_min_muo2.json"
+config = "config_cylinder-huge.json"
 
 # t.settings(title = 'load propagators', unit = 's')
 pp.InterpolationSettings.tables_path = "/tmp"
@@ -122,7 +123,7 @@ start_end_points = np.zeros(shape=(STATISTICS*2, 3), dtype=float_type)
 muons = []
 
 # max_distance, min_energy, hierarchy_condition
-propagate_settings = (500e2, 0, 10)  
+propagate_settings = (1e20, 0, 10)  
 # max_distance *= 1e2*1e3 # cm in m in km
 # max_distance = 1e2*10000  # cm
 
@@ -138,12 +139,22 @@ detector_size = (sizes1, sizes1, sizes1)
 # outer_radius = 50e2
 # height = 100e2
 
-detector_pos = (0, 0, -99e2)
-inner_radius = 0
-outer_radius = 50e2
-height = 2e2
 
-detector = pp.geometry.Cylinder(pp.Cartesian3D(detector_pos), height, outer_radius, inner_radius)
+# detector_pos = (0, 0, -99e2)
+# detector = pp.geometry.Cylinder(
+#     pp.Cartesian3D(detector_pos),
+#     inner_radius = 0,
+#     radius = 50e2,
+#     height = 2e2
+# )
+detector_pos = (0, 0, -1000e2)
+detector = pp.geometry.Cylinder(
+    pp.Cartesian3D(detector_pos),
+    inner_radius = 0,
+    radius = 567200e2,
+    height = 1e2
+)
+# detector = pp.geometry.Cylinder(pp.Cartesian3D(detector_ops), height, outer_radius, inner_radius)
 # detector = pp.geometry.Box(pp.Cartesian3D(*detector_pos), *detector_size)
 
 t.task('propagation-loop', True)
@@ -157,7 +168,7 @@ for event in tqdm(range(STATISTICS), disable=False):
     # t1.task('read data')  # 3% of loop time TODO
     position = data_position[event]*10
     # momentum = data_momentum[event]*1e3
-    energy = data_energy[event]*1e3
+    energy = data_energy[event]*1e3*1e3
     theta = data_theta[event]
     phi = data_phi[event]
     charge = data_charge[event]
@@ -186,7 +197,7 @@ for event in tqdm(range(STATISTICS), disable=False):
         break
 
     # t1.task('did geometry hit?')  # 4% of loop time
-    if (track.hit_geometry(detector) or False):
+    if (track.hit_geometry(detector) or True):
         # t1.task('write propagate array and write to array')  # 14% loop time
         distance_at_track_end = track.track_propagated_distances()[-1]
         energy_at_track_end = track.track_energies()[-1]
@@ -213,14 +224,13 @@ for event in tqdm(range(STATISTICS), disable=False):
 t.task('deleting arrays')
 print(
     f'{counter} of {STATISTICS} muons ({counter/STATISTICS*100:.4}%) ' +
-    'did hit the defined geometry'
+    'hit the defined geometry'
 )
 start_end_points = np.delete(start_end_points, np.s_[(counter*2):], 0)
 distances = np.delete(distances, np.s_[(counter):], 0)
 energies = np.delete(energies, np.s_[(counter):], 0)
 energies2 = np.delete(energies2, np.s_[(counter):], 0)
 
-t.task('writing muons.txt')
 test = np.array(
     [
         [0, 0, 0], [1, 1, 1], [0, 0, 0],
@@ -231,11 +241,12 @@ test = np.array(
         [99, 99, 99]
     ]
 )
+t.task('writing muons.txt')
 with open('muons.txt', 'w') as f:
     f.writelines(muons)
 
 # t.stop()
-# %
+# %%
 # plots
 ######################################################################
 ######################################################################
@@ -244,11 +255,11 @@ with open('muons.txt', 'w') as f:
 reload(plib)
 t.settings(title=None)
 t.task('3D plot')
-# plib.plot_3D_start_end(
-#     start_end_points, detector_pos, detector_size,
-#     elev=10, azim=70, alpha=0.3, dpi=1, show=show_plots,
-#     title=f'# of particles: {counter}'
-# )
+plib.plot_3D_start_end(
+    start_end_points, detector_pos, detector_size,
+    elev=10, azim=70, alpha=0.3, dpi=1, show=show_plots,
+    title=f'# of particles: {counter}'
+)
 # t.task('distances plot')
 # plib.plot_distances_std(
 #     distances/100, 100, xlabel_unit='m', show=show_plots
@@ -258,11 +269,11 @@ t.task('3D plot')
 #     energies/1000, binsize=100, xlabel_unit='GeV', show=show_plots
 # )
 
-t.task('energy plot2')
-plib.plot_energy_std(
-    energies2/1000, binsize=100, xlabel_unit='GeV', show=show_plots
-)
-t.stop()
+# t.task('energy plot2')
+# plib.plot_energy_std(
+#     energies2/1000, binsize=100, xlabel_unit='GeV', show=show_plots
+# )
+t.stop(silent=True)
 
 
 # %%
