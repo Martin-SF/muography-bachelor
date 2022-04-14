@@ -1,7 +1,10 @@
 # pandas
-
 *.hdf
 
+# dask
+*.dirlock
+*.lock
+/dask-worker-space
 
 # Prerequisites
 *.d

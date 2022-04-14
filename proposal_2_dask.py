@@ -6,7 +6,8 @@ os.chdir(os.path.dirname(__file__))  # wichtig wenn nicht über ipython ausgefü
 #%%
 
 from distributed import Client, LocalCluster, as_completed
-client = Client("localhost:8786")
+# client = Client("localhost:8786")
+client = Client("tcp://129.217.166.201:8786")
 # client = Client("localhost:43887")
 # client = Client()
 
@@ -55,9 +56,9 @@ def transform_position_posxyz(x, y, z):
 ######################################################################
 show_plots = True
 # show_plots = False
-STATISTICS = int(3e3)
 STATISTICS = int(1e5)
-STATISTICS = int(1e3)
+STATISTICS = int(3e3)
+STATISTICS = int(1e0)
 print_results = False
 t.settings(title='full proposal propagation and plotting')
 
@@ -125,17 +126,19 @@ print(f'before detector')
 
 pp.InterpolationSettings.tables_path = "/tmp"
 
-import configs.propagator as proper
+# import configs.propagator as proper
+import propagator as proper
+# from propagator import prop_plus, prop_minus
 t.task('propagation')
 # def pp_propagate(position, energy_init, theta, phi, charge, **kwargs):
 def pp_propagate(position, energy_init, theta, phi, charge):
+    # print(os.getcwd())
     # position = (0,0,0)
     # t1 = stopwatch(
     # title='inside propagation loop', time_unit='µs',
     # selfexecutiontime_micros=0.7)  # total time when hit target 38 µs
 
    
-    # print(os.getcwd())
     # os.chdir(kwargs['path'])  # notwendig!!
 
     propagate_settings = (1e20, 0, 10)  
@@ -254,6 +257,8 @@ def main():
     # prop.config = "config_cylinder-huge.json"
     # client.upload_file(proper.config)
     client.upload_file('propagator.py')
+    # client.upload_file('configs/propagator.py')
+    # client.upload_file('propagator.py')
     # os.chdir(os.path.dirname(__file__))
     # futures = client.map(pp_propagate, *input,
     #             path = os.path.abspath(os.path.dirname(__file__)))
