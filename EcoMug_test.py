@@ -17,7 +17,7 @@ MU_MINUS_MASS = pp.particle.MuMinusDef().mass
 
 
 @vectorize(nopython=True)
-def change_azimuth_convention(angle_in_rad):
+def change_zenith_convention(angle_in_rad):
     return -angle_in_rad + np.pi
 
 
@@ -30,7 +30,7 @@ def calculate_energy_vectorized_GeV(momentum):
                         (MU_MINUS_MASS/One_momentum_in_MeV)**2)
 
 
-change_azimuth_convention(0)
+change_zenith_convention(0)
 calculate_energy_vectorized_GeV(0)
 
 
@@ -50,13 +50,11 @@ gen = EcoMug.EcoMug()
 gen.SetUseSky()  # plane surface generation
 gen.SetSkySize((0, 0))  # x and y size of the plane
 gen.SetSkyCenterPosition((0, 0, 0))  # (x,y,z) position of the center of the plane
-gen.SetMinimumMomentum(60)  # in GeV
+# gen.SetMinimumMomentum(60)  # in GeV
+gen.SetMaximumTheta(np.radians(30))  # in degree
 # 66 for min 100 standardrock
 
 gen.SetSeed(1909)
-file_name = "EcoMug_test_new_position.hdf"
-file_name = "EcoMug_fullspectrum.hdf"
-file_name = "EcoMug_highenergy.hdf"
 file_name = "EcoMug_highenergy_pos0.hdf"
 STATISTICS = int(1e7) # 1e7:4.5min; 1e6:27s; 2e5:5,4s; 1e4: 0,3s
 
@@ -120,9 +118,11 @@ print(muon_e)
 # 100%|██████████| 5/5 [13:29<00:00, 161.96s/it]
 # STATISTICS = int(1e7)
 # [1, 10, 50, 100, 1000]
-energys = {1: 'darkblue', 10: 'indianred', 50: 'c', 100: 'green', 1000: 'm'}
+energys = {1: 'darkblue', 10: 'indianred', 50: 'c', 100: 'green', 1000: 'm', 10000: 'r'}
 file_name = "EcoMug_muons_2-sphere-r-1.hdf"
 file_name = "EcoMug_muons_2-sky-width-10.hdf"
+file_name = "EcoMug_gaisser_full.hdf"
+file_name = "EcoMug_gaisser_guan_full.hdf"
 for gen_momentum in tqdm(energys.keys(), disable=False):
     # continue
     gen = EcoMug.EcoMug()
@@ -134,21 +134,28 @@ for gen_momentum in tqdm(energys.keys(), disable=False):
     # gen.SetHSphereRadius(1)
     # gen.SetUseCylinder()
     gen.SetSeed(1909)
+    gen.SetDifferentialFluxGuan()
     # gen_momentum = 1
     offset = 0
     gen.SetMinimumMomentum(gen_momentum-offset)  # in GeV
     gen.SetMaximumMomentum(gen_momentum-offset)  # in GeV
 
-    STATISTICS = int(1e6)
-    muon_pos = [None]*STATISTICS
-    muon_p = [float]*STATISTICS
-    muon_theta = [float]*STATISTICS
-    muon_phi = [float]*STATISTICS
-    muon_charge = [float]*STATISTICS
+    STATISTICS = int(3e6)
+    # muon_pos = [None]*STATISTICS
+    # muon_p = [float]*STATISTICS
+    # muon_theta = [float]*STATISTICS
+    # muon_phi = [float]*STATISTICS
+    # muon_charge = [float]*STATISTICS
+
+    muon_p = np.zeros(STATISTICS, dtype=float)
+    muon_theta = np.zeros(STATISTICS, dtype=float)
+    muon_phi = np.zeros(STATISTICS, dtype=float)
+    muon_charge = np.zeros(STATISTICS, dtype=int)
 
     for event in tqdm(range(STATISTICS), disable=False):
-        gen.Generate()
-        muon_pos[event] = gen.GetGenerationPosition()
+        # gen.Generate()
+        gen.GenerateFromCustomJ()
+        # muon_pos[event] = gen.GetGenerationPosition()
         muon_p[event] = gen.GetGenerationMomentum()
         muon_theta[event] = gen.GetGenerationTheta()
         muon_phi[event] = gen.GetGenerationPhi()
@@ -157,7 +164,7 @@ for gen_momentum in tqdm(energys.keys(), disable=False):
     muon_e = calculate_energy_vectorized_GeV(muon_p)
 
     df = pd.DataFrame()
-    df['position'] = muon_pos
+    # df['position'] = muon_pos
     df['momentum'] = muon_p
     df['energy'] = muon_e
     df['theta'] = muon_theta
@@ -181,6 +188,9 @@ file_name2 = "EcoMug_muons_2-sky-width-10000.hdf"
 file_name2 = "EcoMug_muons_2-sky-width-10.hdf"
 file_name2 = "EcoMug_muons2.hdf"
 file_name2 = "EcoMug_muons_2-sphere-r-1.hdf"
+file_name2 = "EcoMug_gaisser_full.hdf"
+file_name2 = "EcoMug_gaisser_guan_full.hdf"
+
 binsize = 100
 
 # mu_100gev  = pd.read_hdf(file_name2, key='GeV100')
@@ -192,9 +202,9 @@ binsize = 100
 
 for p, c in tqdm(energys.items(), disable=False):
     data = pd.read_hdf(file_name2, key=f'GeV{p}')
-    theta = change_azimuth_convention(np.array(data['theta']))
+    theta = change_zenith_convention(np.array(data['theta']))
     cos_theta = np.cos(theta)
-    # theta = change_azimuth_convention(np.array(data['theta']))/(np.pi/2)
+    # theta = change_zenith_convention(np.array(data['theta']))/(np.pi/2)
 
     hist, bin_edges = np.histogram(cos_theta, bins=binsize)
     bin_edges = np.delete(bin_edges, [(len(bin_edges)-1)], None)
@@ -209,21 +219,21 @@ for p, c in tqdm(energys.items(), disable=False):
 
 x = np.linspace(0, np.pi/2, binsize)
 y = np.cos(x)**2
-# _ = plt.plot(np.cos(x), y,'--', label=r'$\mathrm{cos}^2\theta$')
+_ = plt.plot(np.cos(x), y,'--', label=r'$\mathrm{cos}^2\theta$')
 # _ = plt.plot(x, y,'--', label=r'$\mathrm{cos}^2\theta$')
 y = 1/np.cos(x)
-# _ = plt.plot(np.cos(x), y,'--', label=r'$\frac{1}{\mathrm{cos}\theta}$')
+_ = plt.plot(np.cos(x), y,'--', label=r'$\frac{1}{\mathrm{cos}\theta}$')
 
 plt.yscale('log')
 # plt.xlim([np.pi/2, 0])
 # plt.ylim(1e-2, 1e1)
-plt.axis([1, 0, 1e-2, 1e0])
+plt.axis([1, 0, 1e-2, 1e1])
 plt.xlabel(r'$\mathrm{cos} \;\theta $')
 plt.ylabel(r"$I/I_{\mathrm{vert}}$")
 plt.title(file_name2)
 plt.tight_layout()
 plt.legend()
-# plt.savefig('plot.pdf')
+plt.savefig('fig_4_gaisser_guan.pdf')
 
 # %%
 data_GeV10_theta0 = np.array(pd.read_hdf("EcoMug_muons2.hdf", key='GeV10')['theta'])
@@ -232,7 +242,7 @@ data_GeV1000_theta = np.array(pd.read_hdf("EcoMug_muons2.hdf", key='GeV1000')['t
 # %%time
 # theta = np.cos(data['theta'])
 # theta = np.cos(data_GeV10_theta)
-data_GeV10_theta = change_azimuth_convention(data_GeV10_theta0)
+data_GeV10_theta = change_zenith_convention(data_GeV10_theta0)
 # theta2 = 
 # bins = np.geomspace(min(data)-1, max(data)+1, 10)
 # bins = np.cos(np.linspace(min(data_GeV10_theta), max(data_GeV10_theta), 10000))

@@ -3,7 +3,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 # %%
 
-rate = np.linspace(100, 1000)
+rate = np.linspace(1000, 10000)
 # depth = lambda x: x, 
 
 def depth(x):

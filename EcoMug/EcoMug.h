@@ -27,6 +27,15 @@
 #include <array>
 #include <random>
 
+double JGuan(double p, double theta) {
+  double X = p * (1. + 3.64 / (p * pow(cos(theta), 1.29)));
+  double A = 0.14*pow(X, -2.7);
+  double B = 1. / (1. + 1.1*p*cos(theta)/115.);
+  double C = 0.054 / (1. + 1.1*p*cos(theta)/850.);
+  return A*(B+C);
+};
+
+
 //! Fast generation of random numbers
 //! This class is based on the xoroshiro128+ generator.
 //! https://prng.di.unimi.it/
@@ -383,6 +392,13 @@ public:
   void SetDifferentialFlux(std::function<double(double, double)> J) {
     mJ = J;
   };
+
+  /// BY MARTIN SCHOENFELD
+
+  void SetDifferentialFluxGuan() {
+    SetDifferentialFlux(&JGuan);
+  };
+
   /// Set the seed for the internal PRNG (if 0 a random seed is used)
   void SetSeed(uint64_t seed) {
     if (seed > 0) mRandom.SetSeed(seed);

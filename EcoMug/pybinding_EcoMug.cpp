@@ -37,10 +37,11 @@ PYBIND11_MODULE(EcoMug, m) {
 
 
       .def("Generate", &EcoMug::Generate)
+      .def("GenerateFromCustomJ", &EcoMug::GenerateFromCustomJ)
       .def("SetGenerationMethod", &EcoMug::SetGenerationMethod)
       .def("GetGenerationMethod", &EcoMug::GetGenerationMethod)
-      .def("GenerateFromCustomJ", &EcoMug::GenerateFromCustomJ)
       .def("SetDifferentialFlux", &EcoMug::SetDifferentialFlux)
+      .def("SetDifferentialFluxGuan", &EcoMug::SetDifferentialFluxGuan)
       .def("SetSeed", &EcoMug::SetSeed)
 
       .def("GetGenerationPosition", &EcoMug::GetGenerationPosition)

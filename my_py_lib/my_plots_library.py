@@ -33,7 +33,7 @@ def plot_3D_start_end(dataset, detector_pos, detector_size, elev=30.0, azim=30,
     # ax.add_collection(collection)
     plotCubeAt(pos=detector_pos, size=detector_size, ax=ax, color='black', alpha=1)
 
-    ax.plot(dataset[0,0], dataset[0,1], dataset[0,2], '.', c='black', markersize=40, zorder=4, label='position of 1st particle')
+    ax.plot(dataset[0,0], dataset[0,1], dataset[0,2], '.', c='black', markersize=40, zorder=4, label='particle origin')
     ax.legend()
     # ax.set_aspect('equal')
 

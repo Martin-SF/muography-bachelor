@@ -92,7 +92,10 @@ t.task('create prop_minus and plus')
     # config = "config_min_muo.json"
     # config = "config_min_muo2.json"
 }
-config = "config_cylinder-huge.json"
+# config = "config_cylinder-huge.json"
+config = "config_kirchhellen_stdrock.json"
+config = "config_kirchhellen_sandstein.json"
+config = "config_kirchhellen_stdrock_800m.json"
 config = "configs/"+config
 
 
@@ -116,7 +119,7 @@ init_state.type = 13  # type for muons+
 reload(stopwatch)
 reload(plib)
 t.task('initilaize propagation')
-STATISTICS = int(1e5)
+STATISTICS = int(1e4)
 distances = np.zeros(STATISTICS, dtype=float_type)
 energies = np.zeros(STATISTICS, dtype=float_type)
 energies2 = np.zeros(STATISTICS, dtype=float_type)
@@ -138,12 +141,13 @@ detector_size = (sizes1, sizes1, sizes1)
 #     radius = 50e2,
 #     height = 2e2
 # )
-detector_pos = (0, 0, -1000e2)
+# detector_pos = (0, 0, -1205e2)
+detector_pos = (0, 0, -500e2)
 detector = pp.geometry.Cylinder(
     pp.Cartesian3D(detector_pos),
     inner_radius = 0,
-    radius = 567200e2,
-    height = 1e2
+    radius = 1e20,
+    height = 2e2
 )
 
 t.task('propagation-loop', True)
@@ -156,7 +160,7 @@ for event in tqdm(range(STATISTICS), disable=False):
     # t1.task('read data')  # 3% of loop time TODO
     position = data_position[event]*10
     # momentum = data_momentum[event]*1e3
-    energy = data_energy[event]*1e3*1e3
+    energy = data_energy[event]*1e3
     theta = data_theta[event]
     phi = data_phi[event]
     charge = data_charge[event]
@@ -184,7 +188,7 @@ for event in tqdm(range(STATISTICS), disable=False):
         break
 
     # t1.task('did geometry hit?')  # 4% of loop time
-    if (track.hit_geometry(detector) or False):
+    if (track.hit_geometry(detector) or True):
         # t1.task('write propagate array and write to array')  # 14% loop time
         distance_at_track_end = track.track_propagated_distances()[-1]
         energy_at_track_end = track.track_energies()[-1]
@@ -231,8 +235,8 @@ test = np.array(
 t.task('writing muons.txt')
 with open('muons.txt', 'w') as f:
     f.writelines(muons)
-
-t.stop()
+print(f'{min(energies2)/1000} GeV')
+# t.stop()
 # %%
 # plots
 ######################################################################
@@ -253,11 +257,11 @@ plib.plot_3D_start_end(
 # )
 # t.task('energy plot')
 # plib.plot_energy_std(
-#     energies/1000, binsize=100, xlabel_unit='GeV', show=show_plots
+#     energies/1000, binsize=100, xlabel_unit='GeV', show=show_plots, name='E_f at detector'
 # )
 
 # t.task('energy plot2')
 # plib.plot_energy_std(
-#     energies2/1000, binsize=100, xlabel_unit='GeV', show=show_plots
+#     energies2/1000, binsize=100, xlabel_unit='GeV', show=show_plots, name='E_i at Detector'
 # )
 t.stop(silent=True)

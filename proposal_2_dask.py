@@ -57,6 +57,7 @@ show_plots = True
 # show_plots = False
 STATISTICS = int(3e3)
 STATISTICS = int(1e5)
+STATISTICS = int(1e3)
 print_results = False
 t.settings(title='full proposal propagation and plotting')
 
@@ -252,7 +253,7 @@ def main():
     # client.upload_file('dask_lib.zip')
     # prop.config = "config_cylinder-huge.json"
     # client.upload_file(proper.config)
-    # client.upload_file('propagator.py')
+    client.upload_file('propagator.py')
     # os.chdir(os.path.dirname(__file__))
     # futures = client.map(pp_propagate, *input,
     #             path = os.path.abspath(os.path.dirname(__file__)))
