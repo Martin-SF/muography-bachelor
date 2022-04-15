@@ -49,10 +49,10 @@ def plot_energy_std(energy_array, binsize = 20,
     plt.ylabel("# of particles")
     plt.title(name)
     bins = np.geomspace(min(energy_array), max(energy_array), binsize)
-    plt.hist(energy_array, bins=bins, log=True, **kwargs)
-    plt.savefig(f'{name}.pdf', bbox_inches="tight")
-    if (show):
-        plt.show()
+    plt.hist(energy_array, bins=bins, log=True, label=name, **kwargs)
+    # plt.savefig(f'{name}.pdf', bbox_inches="tight")
+    # if (show):
+    #     plt.show()
 
 def plot_distances_std(distances_array, binsize = 20, 
                         name = 'plot_distances_std', xlabel_unit = 'cm', show=True, **kwargs):

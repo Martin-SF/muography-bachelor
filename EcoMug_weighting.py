@@ -11,6 +11,7 @@ import proposal as pp
 from EcoMug.build import EcoMug
 from numba import vectorize
 # from numba import jit, njit, prange
+from importlib import reload
 import my_py_lib.stopwatch as stopwatch
 import my_py_lib.my_plots_library as plib
 
@@ -52,23 +53,26 @@ gen = EcoMug.EcoMug()
 gen.SetUseSky()  # plane surface generation
 gen.SetSkySize((0, 0))  # x and y size of the plane
 gen.SetSkyCenterPosition((0, 0, 0))  # (x,y,z) position of the center of the plane
-gen.SetMinimumMomentum(60)  # in GeV
+gen.SetDifferentialFluxGuan()
+# gen.SetMinimumMomentum(60)  # in GeV
 # 66 for min 100 standardrock
 
 gen.SetSeed(1909)
-STATISTICS = int(1e4) # 1e7:4.5min; 1e6:27s; 2e5:5,4s; 1e4: 0,3s
+STATISTICS = int(2e4) # 1e7:4.5min; 1e6:27s; 2e5:5,4s; 1e4: 0,3s
+STATISTICS = int(1e5) # 1e7:4.5min; 1e6:27s; 2e5:5,4s; 1e4: 0,3s
 
 t.task('generating arrays')
 muon_pos = np.zeros(shape=(STATISTICS, 3), dtype=float)
 muon_p = np.zeros(STATISTICS, dtype=float)
-muon_p2 = [float]*STATISTICS
+# muon_p2 = [float]*STATISTICS
+muon_p2 = []
 muon_theta = np.zeros(STATISTICS, dtype=float)
 muon_phi = np.zeros(STATISTICS, dtype=float)
 muon_charge = np.zeros(STATISTICS, dtype=int)
 muon_e = np.zeros(STATISTICS, dtype=float)
 
 def wsk(p):
-    return 0.99/(1+e^((-p/100)+5))+0.01  # meine angenäherte fkt
+    return 0.9/(1 + np.exp(((-1)*p/100)+5))+0.1  # meine angenäherte fkt
 
 weighted_counter = 0
 t.task('generating muons')
@@ -76,15 +80,18 @@ t.task('generating muons')
 for event in tqdm(range(STATISTICS), disable=False):
     # t1.stop(silent=True)
     # t1.task('generate')  # 60% of time
-    gen.Generate()
+    # gen.Generate()
+    gen.GenerateFromCustomJ()
     # t1.task('writing data')  # 40% of time
     muon_p[event] = gen.GetGenerationMomentum()
+    p = muon_p[event]
     
     if np.random.random() <= wsk(p):  # gleiche noch mit distanz
-        muon_p2.append(muon_p[event])
-        # das weighting in ein extra array um das beim histogrammieren später berücksichtigen zu können.
-        # weighted_counter += 1
+        muon_p2.append(p)
         # continue
+    #     # das weighting in ein extra array um das beim histogrammieren später berücksichtigen zu können.
+    #     # weighted_counter += 1
+
     
     # detector_counter += 1/wsk(p)
 
@@ -100,10 +107,43 @@ for event in tqdm(range(STATISTICS), disable=False):
     # if (event==STATISTICS-1):
     #    t1.stop()
 
+#%%
+
+reload(plib)
 plib.plot_energy_std(
-    muon_p, binsize=100, xlabel_unit='GeV', show=show_plots
+    muon_p2, binsize=40, xlabel_unit='GeV', show=True, histtype='step', name='ungewichtet'
 )
 
+plib.plot_energy_std(
+    muon_p, binsize=40, xlabel_unit='GeV', show=True, histtype='step', name='all'
+)
+
+
+plib.plot_energy_std(
+    muon_p2, binsize=40, xlabel_unit='GeV', show=True, histtype='step', weights=[1/wsk(p) for p in muon_p2], name='gewichtet'
+)
+plt.legend()
+#%%
+x = np.geomspace(1e-2, 1e3)
+x = np.geomspace(1, 20)
+y = lambda x: 1/(1+np.exp(-(x-10)))
+plt.plot(x, y(x))
+#%%
+x = np.geomspace(1e-2, 1e3)
+x = np.geomspace(1, 1e3)
+def E_lim_function(x):
+    return 1/(1+np.exp(-(x-10)))
+def y(x, E_lim, STATISTICS):
+    if (x < E_lim):
+        return E_lim_function(x)
+    else:
+        m*x+E_lim_function(E_lim)-m*Elim
+
+# y = lambda x: 1/(1+np.exp(-(x-10)))
+E_lim = 10
+STATISTICS = 1000
+plt.plot(x, y(x, E_lim, STATISTICS))
+plt.xscale('log')
 
 # %%
 t.task('calculation energy')
