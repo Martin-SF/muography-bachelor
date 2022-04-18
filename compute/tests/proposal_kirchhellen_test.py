@@ -92,7 +92,7 @@ t.task('create prop_minus and plus')
     # config = "config_min_muo.json"
     # config = "config_min_muo2.json"
 }
-config = "config_kirchhellen.json"
+config = "config_kirchhellen_sandstein.json"
 config = "configs/"+config
 
 

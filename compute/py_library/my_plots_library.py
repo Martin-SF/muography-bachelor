@@ -3,6 +3,10 @@ import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d.art3d import Line3DCollection
 # import inspect
 # function_name = inspect.stack()[0][3]
+plt.rcParams['figure.figsize'] = (8, 6)
+plt.rcParams['font.size'] = 12
+plt.rcParams['lines.linewidth'] = 2
+plt.rcParams['axes.labelsize'] = 14
 
 # def pp_get_pos(pos_obj):
 #     # a = np.empty(3, dtype=float)
@@ -13,6 +17,7 @@ from mpl_toolkits.mplot3d.art3d import Line3DCollection
 #     return a
 def pp_get_pos(pos_obj):
     return [pos_obj.x, pos_obj.y, pos_obj.z]
+
 
 def plot_3D_start_end(dataset, detector_pos, detector_size, elev=30.0, azim=30, 
                         alpha=0.1, name = 'plot_3D_start_end', title = 'plot_3D_start_end', dpi=400, show=True, **kwargs):
@@ -41,6 +46,7 @@ def plot_3D_start_end(dataset, detector_pos, detector_size, elev=30.0, azim=30,
     if (show):
         plt.show()
 
+
 def plot_energy_std(energy_array, binsize = 20, 
                         name = 'plot_energy_std', xlabel_unit = 'MeV', show=True, **kwargs):
     # expecting energy in MeV
@@ -54,6 +60,7 @@ def plot_energy_std(energy_array, binsize = 20,
     # if (show):
     #     plt.show()
 
+
 def plot_distances_std(distances_array, binsize = 20, 
                         name = 'plot_distances_std', xlabel_unit = 'cm', show=True, **kwargs):
     # expecting distances in cm
@@ -66,6 +73,7 @@ def plot_distances_std(distances_array, binsize = 20,
     plt.savefig(f'{name}.pdf', bbox_inches="tight")
     if (show):
         plt.show()
+
 
 def cuboid_data(o, size=(1,1,1)):
     # code taken from
@@ -89,6 +97,7 @@ def cuboid_data(o, size=(1,1,1)):
          [o[2], o[2], o[2] + h, o[2] + h, o[2]]]               
     return np.array(x), np.array(y), np.array(z)
     
+
 def plotCubeAt(pos=(0,0,0), size=(1,1,1), ax=None, **kwargs):
     # from https://stackoverflow.com/questions/49277753/python-matplotlib-plotting-cuboids
     # Plotting a cube element at position pos
