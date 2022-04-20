@@ -1,9 +1,11 @@
 
 import pandas as pd
 import numpy as np
+from numba import vectorize
+import proposal as pp
 
 FLOAT_TYPE = np.float64
-
+MU_MINUS_MASS = pp.particle.MuMinusDef().mass
 
 def transform_position_list(arr):
     len_arr = len(arr)
@@ -40,3 +42,17 @@ def read_muon_data(file_name, key):
 
     return (data_position, data_momentum, data_energy,
              data_theta, data_phi, data_charge)
+
+
+@vectorize(nopython=True)
+def change_zenith_convention(angle_in_rad):
+    return -angle_in_rad + np.pi
+
+
+# calculate energy from momentum, expecting GeV, 
+# calculating MU_MINUS_MASS to GeV with One_momentum_in_MeV
+@vectorize(nopython=True)
+def calculate_energy_vectorized_GeV(momentum):
+    One_momentum_in_MeV = 1000
+    return np.sqrt(momentum * momentum +
+                        (MU_MINUS_MASS/One_momentum_in_MeV)**2)

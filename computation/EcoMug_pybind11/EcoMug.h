@@ -35,6 +35,13 @@ double JGuan(double p, double theta) {
   return A*(B+C);
 };
 
+double JGaisser(double p, double theta) {
+  double A = 0.14*pow(p, -2.7);
+  double B = 1. / (1. + 1.1*p*cos(theta)/115.);
+  double C = 0.054 / (1. + 1.1*p*cos(theta)/850.);
+  return A*(B+C);
+};
+
 
 //! Fast generation of random numbers
 //! This class is based on the xoroshiro128+ generator.
@@ -397,6 +404,10 @@ public:
 
   void SetDifferentialFluxGuan() {
     SetDifferentialFlux(&JGuan);
+  };
+
+  void SetDifferentialFluxGaisser() {
+    SetDifferentialFlux(&JGaisser);
   };
 
   /// Set the seed for the internal PRNG (if 0 a random seed is used)

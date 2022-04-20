@@ -4,41 +4,25 @@ import numpy as np
 import matplotlib.pyplot as plt
 from tqdm import tqdm
 import pandas as pd
+import os, sys
+os.chdir(os.path.dirname(__file__))
 # from scipy.stats import norm
 # import os, sys
 import proposal as pp
-from EcoMug.build import EcoMug
+from EcoMug_pybind11.build import EcoMug
 from numba import vectorize
-# from numba import jit, njit, prange
-import my_py_lib.stopwatch as stopwatch
 
+# from numba import jit, njit, prange
+import py_library.stopwatch as stopwatch
+import py_library.simulate_lib as slib
 
 MU_MINUS_MASS = pp.particle.MuMinusDef().mass
 
+slib.change_zenith_convention(0)
+slib.calculate_energy_vectorized_GeV(0)
 
-@vectorize(nopython=True)
-def change_zenith_convention(angle_in_rad):
-    return -angle_in_rad + np.pi
-
-
-# calculate energy from momentum, expecting GeV, 
-# calculating MU_MINUS_MASS to GeV with One_momentum_in_MeV
-@vectorize(nopython=True)
-def calculate_energy_vectorized_GeV(momentum):
-    One_momentum_in_MeV = 1000
-    return np.sqrt(momentum * momentum +
-                        (MU_MINUS_MASS/One_momentum_in_MeV)**2)
-
-
-change_zenith_convention(0)
-calculate_energy_vectorized_GeV(0)
-
-
-# os.chdir(os.path.dirname(sys.argv[0]))
-
-# %%
 # %%time
-# GERERATING spectras WITH ECOMUG
+# GERERATING full spectra muons ECOMUG
 ############################################################
 ############################################################
 ############################################################
@@ -50,12 +34,23 @@ gen = EcoMug.EcoMug()
 gen.SetUseSky()  # plane surface generation
 gen.SetSkySize((0, 0))  # x and y size of the plane
 gen.SetSkyCenterPosition((0, 0, 0))  # (x,y,z) position of the center of the plane
-# gen.SetMinimumMomentum(60)  # in GeV
+gen.SetSeed(1909)
+
+gen.SetMaximumMomentum(int(1e9))  # in GeV
 gen.SetMaximumTheta(np.radians(30))  # in degree
+# gen.SetDifferentialFluxGuan()
+# gen.SetDifferentialFluxGaisser()
 # 66 for min 100 standardrock
 
-gen.SetSeed(1909)
-file_name = "EcoMug_highenergy_pos0.hdf"
+
+size = '1e7'
+param = 'std'
+param = 'guan'
+param = 'gaisser'
+angle = '30deg'
+angle = 'full'
+file_name = f'EcoMug_{param}_{angle}_{size}.hdf'
+
 STATISTICS = int(1e7) # 1e7:4.5min; 1e6:27s; 2e5:5,4s; 1e4: 0,3s
 
 t.task('generating arrays')
@@ -72,6 +67,7 @@ for event in tqdm(range(STATISTICS), disable=False):
     # t1.stop(silent=True)
     # t1.task('generate')  # 60% of time
     gen.Generate()
+    # gen.GenerateFromCustomJ()
     # t1.task('writing data')  # 40% of time
     # t1.task('writing pos')
     muon_pos[event] = gen.GetGenerationPosition()  # 7 µs
@@ -88,7 +84,7 @@ for event in tqdm(range(STATISTICS), disable=False):
 
 
 t.task('calculation energy')
-muon_e = calculate_energy_vectorized_GeV(muon_p)  # faster than for loop
+muon_e = slib.calculate_energy_vectorized_GeV(muon_p)  # faster than for loop
 
 t.task('write to df')
 df = pd.DataFrame()
@@ -103,11 +99,12 @@ df['phi'] = muon_phi
 df['charge'] = muon_charge
 
 t.task('write to HDF file')
-df.to_hdf(file_name, key=f'muons_{STATISTICS}')
+# df.to_hdf("data_hdf/"+file_name, key=f'muons_{size}')
+df.to_hdf("data_hdf/"+file_name, key=f'main')
 t.stop(silent=False)
 print(muon_e)
 
-
+quit()
 # %%
 # GERERATING MULTIPLE single-ENERGYS WITH ECOMUG (fig 4 plot)
 ############################################################
@@ -161,7 +158,7 @@ for gen_momentum in tqdm(energys.keys(), disable=False):
         muon_phi[event] = gen.GetGenerationPhi()
         muon_charge[event] = gen.GetCharge()
 
-    muon_e = calculate_energy_vectorized_GeV(muon_p)
+    muon_e = slib.calculate_energy_vectorized_GeV(muon_p)
 
     df = pd.DataFrame()
     # df['position'] = muon_pos
@@ -202,7 +199,7 @@ binsize = 100
 
 for p, c in tqdm(energys.items(), disable=False):
     data = pd.read_hdf(file_name2, key=f'GeV{p}')
-    theta = change_zenith_convention(np.array(data['theta']))
+    theta = slib.change_zenith_convention(np.array(data['theta']))
     cos_theta = np.cos(theta)
     # theta = change_zenith_convention(np.array(data['theta']))/(np.pi/2)
 
@@ -242,7 +239,7 @@ data_GeV1000_theta = np.array(pd.read_hdf("EcoMug_muons2.hdf", key='GeV1000')['t
 # %%time
 # theta = np.cos(data['theta'])
 # theta = np.cos(data_GeV10_theta)
-data_GeV10_theta = change_zenith_convention(data_GeV10_theta0)
+data_GeV10_theta = slib.change_zenith_convention(data_GeV10_theta0)
 # theta2 = 
 # bins = np.geomspace(min(data)-1, max(data)+1, 10)
 # bins = np.cos(np.linspace(min(data_GeV10_theta), max(data_GeV10_theta), 10000))

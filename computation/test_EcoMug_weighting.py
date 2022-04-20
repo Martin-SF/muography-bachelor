@@ -12,8 +12,8 @@ from EcoMug.build import EcoMug
 from numba import vectorize
 # from numba import jit, njit, prange
 from importlib import reload
-import my_py_lib.stopwatch as stopwatch
-import my_py_lib.my_plots_library as plib
+import py_library.stopwatch as stopwatch
+import py_library.my_plots_library as plib
 
 
 MU_MINUS_MASS = pp.particle.MuMinusDef().mass
@@ -117,7 +117,6 @@ plib.plot_energy_std(
 plib.plot_energy_std(
     muon_p, binsize=40, xlabel_unit='GeV', show=True, histtype='step', name='all'
 )
-
 
 plib.plot_energy_std(
     muon_p2, binsize=40, xlabel_unit='GeV', show=True, histtype='step', weights=[1/wsk(p) for p in muon_p2], name='gewichtet'

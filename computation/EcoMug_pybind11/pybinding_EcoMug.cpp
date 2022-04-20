@@ -42,6 +42,7 @@ PYBIND11_MODULE(EcoMug, m) {
       .def("GetGenerationMethod", &EcoMug::GetGenerationMethod)
       .def("SetDifferentialFlux", &EcoMug::SetDifferentialFlux)
       .def("SetDifferentialFluxGuan", &EcoMug::SetDifferentialFluxGuan)
+      .def("SetDifferentialFluxGaisser", &EcoMug::SetDifferentialFluxGaisser)
       .def("SetSeed", &EcoMug::SetSeed)
 
       .def("GetGenerationPosition", &EcoMug::GetGenerationPosition)

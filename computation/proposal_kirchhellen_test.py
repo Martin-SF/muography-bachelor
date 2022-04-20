@@ -10,8 +10,8 @@ import os, sys
 os.chdir(os.path.dirname(__file__))
 # from numba import jit, njit, vectorize, prange
 from importlib import reload
-import my_py_lib.my_plots_library as plib
-import my_py_lib.stopwatch as stopwatch
+import py_library.my_plots_library as plib
+import py_library.stopwatch as stopwatch
 import proposal as pp
 reload(stopwatch)
 t = stopwatch.stopwatch()
@@ -48,7 +48,7 @@ t.task('read EcoMug data')
 file_name = "EcoMug_fullspectrum.hdf"
 file_name = "EcoMug_highenergy.hdf"
 file_name = "EcoMug_highenergy_pos0.hdf"
-file_name = "hdf_files/"+file_name
+file_name = "data_hdf/"+file_name
 size = int(1e7)
 data = pd.read_hdf(file_name, key=f'muons_{size}')
 # if 'data' not in locals():
@@ -73,37 +73,21 @@ energy_readout = data['energy']
 #     energy_readout, binsize=50,
 #     xlabel_unit='GeV', show=show_plots)
 # t.stop()
-# %
+# %%
 # load proposal propagators, building interpolation tables...
 ######################################################################
 ######################################################################
 t.task('create prop_minus and plus')
-
-{
-    # config = "config_earth.json"
-    # config = "config_full_edit.json"
-    # config = "config_full_edit2.json"
-    # config = "config_full_onesector_nomultiplescattering.json"
-    # config = "config_full_onesector.json"
-    # config = "config_full.json"
-    # config = "config_minimal.json"
-    # config = "config_muo0_r.json"
-    # config = "config_muo0.json"
-    # config = "config_min_muo.json"
-    # config = "config_min_muo2.json"
-}
 config = "config_kirchhellen_sandstein.json"
-config = "configs/"+config
-
 
 pp.InterpolationSettings.tables_path = "/tmp"
 prop_minus = pp.Propagator(
     particle_def=pp.particle.MuMinusDef(),
-    path_to_config_file=config
+    path_to_config_file="config/"+config
 )
 prop_plus = pp.Propagator(
     particle_def=pp.particle.MuPlusDef(),
-    path_to_config_file=config
+    path_to_config_file="config/"+config
 )
 init_state = pp.particle.ParticleState()
 init_state.type = 13  # type for muons+
@@ -124,7 +108,7 @@ start_end_points = np.zeros(shape=(STATISTICS*2, 3), dtype=float_type)
 muons = []
 
 # max_distance, min_energy, hierarchy_condition
-propagate_settings = (1e20, 0, 10)  
+propagate_settings = (1e20, 0, 10)
 
 t.task('geometry define')
 sizes1 = 20e2
@@ -152,9 +136,11 @@ counter = 0
 #     title='inside propagation loop', time_unit='µs',
 #     selfexecutiontime_micros=0.7)  # total time when hit target 38 µs
 
+position = np.array([0,0,0])
+init_state.position = pp.Cartesian3D(position)
 for event in tqdm(range(STATISTICS), disable=False):
     # t1.task('read data')  # 3% of loop time TODO
-    position = data_position[event]*10
+    # position = data_position[event]*10
     # momentum = data_momentum[event]*1e3
     energy = data_energy[event]*1e3*1e3
     theta = data_theta[event]
@@ -164,7 +150,6 @@ for event in tqdm(range(STATISTICS), disable=False):
     # t1.task('give muon to proposal')  # 17% of loop time
     # init_state.momentum = momentum  # MeV
     init_state.energy = energy   # MeV
-    init_state.position = pp.Cartesian3D(position)
     init_state.direction = pp.Cartesian3D(pp.Spherical3D(1, phi, theta))
     # t1.task('propagation') # 20% of loop time
     try:

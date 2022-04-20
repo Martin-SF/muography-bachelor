@@ -1,4 +1,5 @@
 cmake_minimum_required(VERSION 3.4)
 project(pybinding_EcoMug)
+set( PYTHON_EXECUTABLE /home/martin/.local/anaconda3/bin/python )
 add_subdirectory(pybind11)
 pybind11_add_module(EcoMug pybinding_EcoMug.cpp)

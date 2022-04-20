@@ -8,11 +8,12 @@ from tqdm import tqdm
 import pandas as pd
 import os, sys
 os.chdir(os.path.dirname(__file__))
+
 # from numba import jit, njit, vectorize, prange
 from importlib import reload
-import my_py_lib.my_plots_library as plib
-import my_py_lib.stopwatch as stopwatch
-import my_py_lib.simulate_lib as slib
+import py_library.my_plots_library as plib
+import py_library.stopwatch as stopwatch
+import py_library.simulate_lib as slib
 import proposal as pp
 
 reload(stopwatch)
@@ -21,34 +22,44 @@ show_plots = True
 # show_plots = False
 FLOAT_TYPE = np.float64
 
-
-
 t.settings(title='full proposal propagation and plotting')
-
 t.task('read EcoMug data')
-file_name = "EcoMug_fullspectrum.hdf"
-size = int(1e7)
-(data_position, data_momentum, data_energy, 
-    data_theta, data_phi, data_charge) = 
-    slib.read_muon_data("hdf_files/"+file_name, f'muons_{size}'
-    )
-
+size = '1e7'
+param = 'std'
+param = 'guan'
+param = 'gaisser'
+angle = '30deg'
+angle = 'full'
+file_name = f'EcoMug_{param}_{angle}_{size}.hdf'
+size = int(float(size))
+(data_position, data_momentum, data_energy,
+    data_theta, data_phi, 
+    data_charge) = slib.read_muon_data(
+        "data_hdf/"+file_name, f'main')
 
 t.task('plot data')
 # plib.plot_energy_std(
 #     data_energy, binsize=50,
 #     xlabel_unit='GeV', show=show_plots)
-# t.stop()
-# %
+# plib.plot_distances_std(
+#     data_theta, binsize=50, name='theta dist ',
+#     xlabel_unit='theta', show=show_plots)
+# plib.plot_distances_std(
+#     slib.change_zenith_convention(data_theta), binsize=50, name='theta dist changed ',
+#     xlabel_unit='theta', show=show_plots)
+# plib.plot_distances_std(
+#     np.cos(data_theta), binsize=50, name='theta dist cos',
+#     xlabel_unit='cos(theta)', show=show_plots)
+# plib.plot_distances_std(
+#     np.cos(slib.change_zenith_convention(data_theta)), binsize=50, name='theta dist changed cos',
+#     xlabel_unit='cos(theta)', show=show_plots)
+# %%
 # load proposal propagators, building interpolation tables...
 ######################################################################
 ######################################################################
 t.task('create prop_minus and plus')
-
 {
     # config = "config_earth.json"
-    # config = "config_full_edit.json"
-    # config = "config_full_edit2.json"
     # config = "config_full_onesector_nomultiplescattering.json"
     # config = "config_full_onesector.json"
     # config = "config_full.json"
@@ -57,22 +68,19 @@ t.task('create prop_minus and plus')
     # config = "config_muo0.json"
     # config = "config_min_muo.json"
     # config = "config_min_muo2.json"
+    # config = "config_cylinder-huge.json"
 }
-# config = "config_cylinder-huge.json"
-config = "config_kirchhellen_stdrock.json"
-config = "config_kirchhellen_sandstein.json"
-config = "config_kirchhellen_stdrock_800m.json"
-config = "configs/"+config
-
+config = "sandstein.json"
+config = "stdrock.json"
 
 pp.InterpolationSettings.tables_path = "/tmp"
 prop_minus = pp.Propagator(
     particle_def=pp.particle.MuMinusDef(),
-    path_to_config_file=config
+    path_to_config_file="config/"+config
 )
 prop_plus = pp.Propagator(
     particle_def=pp.particle.MuPlusDef(),
-    path_to_config_file=config
+    path_to_config_file="config/"+config
 )
 init_state = pp.particle.ParticleState()
 init_state.type = 13  # type for muons+
@@ -85,7 +93,7 @@ init_state.type = 13  # type for muons+
 reload(stopwatch)
 reload(plib)
 t.task('initilaize propagation')
-STATISTICS = int(1e4)
+STATISTICS = int(1e3)
 distances = np.zeros(STATISTICS, dtype=FLOAT_TYPE)
 energies = np.zeros(STATISTICS, dtype=FLOAT_TYPE)
 energies2 = np.zeros(STATISTICS, dtype=FLOAT_TYPE)
@@ -95,49 +103,41 @@ muons = []
 # max_distance, min_energy, hierarchy_condition
 propagate_settings = (1e20, 0, 10)  
 
-t.task('geometry define')
+t.task('define detector')
 sizes1 = 20e2
 detector_size = (sizes1, sizes1, sizes1)
-
 # detector = pp.geometry.Box(pp.Cartesian3D(*detector_pos), *detector_size)
 
-# detector_pos = (0, 0, -99e2)
 # detector = pp.geometry.Cylinder(
-#     pp.Cartesian3D(detector_pos),
-#     inner_radius = 0,
-#     radius = 50e2,
-#     height = 2e2
-# )
+#     pp.Cartesian3D(detector_pos), inner_radius = 0,
+#     radius = 50e2, height = 2e2 )
 
+# detector_pos = (0, 0, -99e2)
 # detector_pos = (0, 0, -1205e2)
 detector_pos = (0, 0, -500e2)
 detector = pp.geometry.Cylinder(
-    pp.Cartesian3D(detector_pos),
-    inner_radius = 0,
-    radius = 1e20,
-    height = 2e2
+    pp.Cartesian3D(detector_pos), inner_radius = 0,
+    radius = 1e20, height = 2e2
 )
 
 t.task('propagation-loop', True)
 counter = 0
 # t1 = stopwatch.stopwatch(
-#     title='inside propagation loop', time_unit='µs',
+#     title='propagation loop', time_unit='µs',
 #     selfexecutiontime_micros=0.7)  # total time when hit target 38 µs
 
-init_state.position = pp.Cartesian3D([0,0,0])
+position = np.array([0,0,0])
+init_state.position = pp.Cartesian3D(position)
+# data_theta = slib.change_zenith_convention(data_theta)  # dann fliegen sie nach oben
 for event in tqdm(range(STATISTICS), disable=False):
     # t1.task('read data')  # 3% of loop time TODO
-    # position = data_position[event]*10
-    # momentum = data_momentum[event]*1e3
     energy = data_energy[event]*1e3
     theta = data_theta[event]
     phi = data_phi[event]
     charge = data_charge[event]
 
     # t1.task('give muon to proposal')  # 17% of loop time
-    # init_state.momentum = momentum  # MeV
     init_state.energy = energy   # MeV
-    # init_state.position = pp.Cartesian3D(position)
     init_state.direction = pp.Cartesian3D(pp.Spherical3D(1, phi, theta))
     # t1.task('propagation') # 20% of loop time
     try:
@@ -182,31 +182,21 @@ for event in tqdm(range(STATISTICS), disable=False):
 # t.stop()
 # %
 t.task('deleting arrays')
-print(
-    f'{counter} of {STATISTICS} muons ({counter/STATISTICS*100:.4}%) ' +
-    'hit the defined geometry'
-)
 start_end_points = np.delete(start_end_points, np.s_[(counter*2):], 0)
 distances = np.delete(distances, np.s_[(counter):], 0)
 energies = np.delete(energies, np.s_[(counter):], 0)
 energies2 = np.delete(energies2, np.s_[(counter):], 0)
 
-test = np.array(
-    [
-        [0, 0, 0], [1, 1, 1], [0, 0, 0],
-        [2,  2, 2], [0, 0, 0], [3, 3, 3],
-        [0, 0, 0], [4, 4, 4], [0, 0, 0],
-        [5, 5, 5], [0, 0, 0], [0, 0, 0],
-        [0, 0, 0], [0, 0, 0], [0, 0, 0],
-        [99, 99, 99]
-    ]
-)
+print(
+    f'{counter} of {STATISTICS} muons ({counter/STATISTICS*100:.4}%) ' +
+    'hit the detector'
+    )
+print(f'min E_i at detector is {min(energies2)/1000} GeV')
 t.task('writing muons.txt')
 with open('muons.txt', 'w') as f:
     f.writelines(muons)
-print(f'{min(energies2)/1000} GeV')
 # t.stop()
-# %%
+# %
 # plots
 ######################################################################
 ######################################################################
@@ -225,12 +215,14 @@ plib.plot_3D_start_end(
 #     distances/100, 100, xlabel_unit='m', show=show_plots
 # )
 # t.task('energy plot')
-# plib.plot_energy_std(
-#     energies/1000, binsize=100, xlabel_unit='GeV', show=show_plots, name='E_f at detector'
-# )
+plib.plot_energy_std(
+    energies/1000, binsize=100, xlabel_unit='GeV', show=show_plots, name='E_f at detector'
+)
 
 # t.task('energy plot2')
 # plib.plot_energy_std(
 #     energies2/1000, binsize=100, xlabel_unit='GeV', show=show_plots, name='E_i at Detector'
 # )
 t.stop(silent=True)
+
+# %%
