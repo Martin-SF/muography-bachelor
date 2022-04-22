@@ -45,39 +45,58 @@ def plot_distances_std(distances_array, binsize = 20,
     plt.title(name)
     bins = np.linspace(min(distances_array), max(distances_array), binsize)
     plt.hist(distances_array, bins=bins, log=True, **kwargs)
-    plt.savefig(f'figures/{name}.pdf', bbox_inches="tight")
-    if (show):
-        plt.show()
+    # plt.savefig(f'figures/{name}.pdf', bbox_inches="tight")
+    # if (show):
+    #     plt.show()
 
-
-def plot_hist_log(array, ylabel, x_label1, xlabel_unit, log=False, binsize=None, name='plot_hist_log',
-                    show=True, savefig=False, **kwargs):
+# versatile histogram plotting function
+def plot_hist(array,
+                ylabel = '# of muons',
+                x_label1 = 'physical property', 
+                xlabel_unit = 'unit', 
+                name='plot_hist_log',
+                label=None,
+                xlog=False, 
+                binsize=None,
+                show_or_multiplot=True, 
+                savefig=False,
+                **kwargs):
     plt.xlabel(fr'${{{x_label1}}} \,/\, \mathrm{{{xlabel_unit}}}$')
     plt.ylabel(f"{ylabel}")
     plt.title(name)
     if (binsize != None):
-        if (log):
+        if (xlog):
             bins = np.geomspace(min(array), max(array), binsize)
         else:
             bins = np.linspace(min(array), max(array), binsize)
     else:
-        if (log):
+        if (xlog):
             bins = np.geomspace(min(array), max(array), 30)
         else:
             bins = binsize
 
-    if (log):
+    if (xlog):
         plt.xscale('log')
     
-    plt.hist(array, bins=bins, log=log, label=name, **kwargs)
-    if (savefig):
-        plt.savefig(f'figures/{name}.pdf', bbox_inches="tight")
-    if (show):
+    plt.hist(array, bins=bins, log=xlog, label=name, **kwargs)
+    plt.legend()
+    if (show_or_multiplot):
         plt.show()
+    if (savefig and not (show_or_multiplot)):
+        plt.savefig(f'figures/{name}.pdf', bbox_inches="tight")
 
 
-def plot_3D_start_end(dataset, detector_pos, detector_size, elev=30.0, azim=30, 
-                        alpha=0.1, name = 'plot_3D_start_end', title = 'plot_3D_start_end', dpi=400, show=True, **kwargs):
+def plot_3D_start_end(dataset, 
+            detector_pos, 
+            detector_size, 
+            elev=30.0, 
+            azim=30, 
+            alpha=0.1, 
+            name = 'plot_3D_start_end', 
+            title = 'plot_3D_start_end', 
+            dpi=400, 
+            show=True, 
+            **kwargs):
     # original function by dominik baar
     # fig = plt.figure(figsize=(16, 16))
     fig = plt.figure(figsize=(8, 8))

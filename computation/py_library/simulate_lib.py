@@ -5,7 +5,7 @@ from numba import vectorize
 import proposal as pp
 
 FLOAT_TYPE = np.float64
-MU_MINUS_MASS = pp.particle.MuMinusDef().mass
+MU_MINUS_MASS_squared_GeV = (pp.particle.MuMinusDef().mass/1000)**2
 
 def transform_position_list(arr):
     len_arr = len(arr)
@@ -51,8 +51,7 @@ def change_zenith_convention(angle_in_rad):
 
 # calculate energy from momentum, expecting GeV, 
 # calculating MU_MINUS_MASS to GeV with One_momentum_in_MeV
+# expecting momentum in GeV, output E in GeV (muon mass in GeV)
 @vectorize(nopython=True)
 def calculate_energy_vectorized_GeV(momentum):
-    One_momentum_in_MeV = 1000
-    return np.sqrt(momentum * momentum +
-                        (MU_MINUS_MASS/One_momentum_in_MeV)**2)
+    return np.sqrt(momentum * momentum + MU_MINUS_MASS_squared_GeV)

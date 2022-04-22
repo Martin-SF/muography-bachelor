@@ -27,18 +27,22 @@
 #include <array>
 #include <random>
 
-double JGuan(double p, double theta) {
-  double X = p * (1. + 3.64 / (p * pow(cos(theta), 1.29)));
+const double MMU = 0.1056583745;
+
+static double JGuan(double p, double theta) {
+  double E = sqrt( p*p + MMU*MMU );
+  double X = E * (1. + 3.64 / (E * pow(cos(theta), 1.29)));
   double A = 0.14*pow(X, -2.7);
-  double B = 1. / (1. + 1.1*p*cos(theta)/115.);
-  double C = 0.054 / (1. + 1.1*p*cos(theta)/850.);
+  double B = 1. / (1. + 1.1*E*cos(theta)/115.);
+  double C = 0.054 / (1. + 1.1*E*cos(theta)/850.);
   return A*(B+C);
 };
 
-double JGaisser(double p, double theta) {
-  double A = 0.14*pow(p, -2.7);
-  double B = 1. / (1. + 1.1*p*cos(theta)/115.);
-  double C = 0.054 / (1. + 1.1*p*cos(theta)/850.);
+static double JGaisser(double p, double theta) {
+  double E = sqrt( p*p + MMU*MMU );
+  double A = 0.14*pow(E, -2.7);
+  double B = 1. / (1. + 1.1*E*cos(theta)/115.);
+  double C = 0.054 / (1. + 1.1*E*cos(theta)/850.);
   return A*(B+C);
 };
 

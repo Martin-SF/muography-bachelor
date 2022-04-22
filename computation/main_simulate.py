@@ -24,26 +24,72 @@ FLOAT_TYPE = np.float64
 
 t.settings(title='full proposal propagation and plotting')
 t.task('read EcoMug data')
-size = '1e7'
-param = 'std'
-param = 'guan'
 param = 'gaisser'
+param = 'guan'
+param = 'std'
+
 angle = '30deg'
 angle = 'full'
-file_name = f'EcoMug_{param}_{angle}_{size}.hdf'
-size = int(float(size))
+
+size = '1e3'
+size = '1e4'
+size = '1e6'
+max_mom = '1e5'
+max_mom = '1e9'
+
+file_name = f'EcoMug_{param}_{angle}_{size}_xmom{max_mom}.hdf'
+# file_name = 'EcoMug_std_30deg_1e6_xmom1e9.hdf'
+# size = int(float(size))
 (data_position, data_momentum, data_energy,
-    data_theta, data_phi, 
-    data_charge) = slib.read_muon_data(
+    data_theta, data_phi, data_charge) = slib.read_muon_data(
         "data_hdf/"+file_name, f'main')
 
+a = []
 t.task('plot data')
+for i in data_energy:
+    if (i>1000):
+        a.append(i)
+
+len_a = len(a)
+print(f'myonen mit mehr als 1000 GeV = {len_a}')
+if len_a > 100:
+    plib.plot_energy_std(
+        a, binsize=50,
+        xlabel_unit='GeV', show=show_plots)
+
+reload(plib)
 # plib.plot_energy_std(
 #     data_energy, binsize=50,
 #     xlabel_unit='GeV', show=show_plots)
+
+
+
+
+file_name = 'EcoMug_std_full_1e6_xmom1e9.hdf'
+(data_position, data_momentum, data_energy,
+    data_theta, data_phi, data_charge) = slib.read_muon_data(
+        "data_hdf/"+file_name, f'main')
+plib.plot_distances_std(
+    np.degrees(data_theta), binsize=50, name='theta dist ',
+    xlabel_unit='theta', show=show_plots)
+
+
+file_name = 'EcoMug_std_30deg_1e6_xmom1e9.hdf'
+(data_position, data_momentum, data_energy,
+    data_theta, data_phi, data_charge) = slib.read_muon_data(
+        "data_hdf/"+file_name, f'main')
+plib.plot_distances_std(
+    np.degrees(data_theta), binsize=50, name='theta dist ',
+    xlabel_unit='theta', show=show_plots)
+
+
+
+
+
 # plib.plot_distances_std(
 #     data_theta, binsize=50, name='theta dist ',
 #     xlabel_unit='theta', show=show_plots)
+
 # plib.plot_distances_std(
 #     slib.change_zenith_convention(data_theta), binsize=50, name='theta dist changed ',
 #     xlabel_unit='theta', show=show_plots)
