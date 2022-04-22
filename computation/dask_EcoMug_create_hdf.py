@@ -1,11 +1,11 @@
 # %%
 # from turtle import color
+import os
+os.chdir(os.path.dirname(__file__))
 import numpy as np
 import matplotlib.pyplot as plt
 from tqdm import tqdm
 import pandas as pd
-import os
-os.chdir(os.path.dirname(__file__))
 # from scipy.stats import norm
 # import proposal as pp
 # from EcoMug_pybind11.build import EcoMug
@@ -21,11 +21,9 @@ reload(stopwatch)
 
 
 from distributed import Client, LocalCluster, as_completed
-#%%
 # client = Client("localhost:8786")
 client = Client("localhost:8786") # phobos
-client = Client("tcp://localhost:8786") # phobos
-
+# client = Client("tcp://localhost:8786") # phobos
 # client.upload_file('EcoMug_pybind11/build/EcoMug.cpython-39-x86_64-linux-gnu.so')
 client.upload_file('EcoMug_objekt_dask.py')
 # client = Client("tcp://129.217.166.201:8786")
@@ -36,6 +34,7 @@ client.upload_file('EcoMug_objekt_dask.py')
 # slib.change_zenith_convention(0)
 # slib.calculate_energy_vectorized_GeV(0)
 
+#%%
 # GERERATING full spectra muons ECOMUG
 ############################################################
 ############################################################
@@ -72,7 +71,7 @@ def Ecomug_generate(i):
     muon_charge = emo.gen.GetCharge()
     return (muon_pos, muon_p, muon_theta, muon_phi, muon_charge)
 
-# %%
+# %
 # STATISTICS = int(1e3)
 
 futures = client.map(Ecomug_generate, range(STATISTICS), pure = True)
