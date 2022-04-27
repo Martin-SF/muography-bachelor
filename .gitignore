@@ -4,7 +4,7 @@
 # dask
 *.dirlock
 *.lock
-/dask-worker-space
+/computation/dask-worker-space
 
 # Prerequisites
 *.d

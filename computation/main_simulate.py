@@ -6,7 +6,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from tqdm import tqdm
 import pandas as pd
-import os, sys
+import os
 os.chdir(os.path.dirname(__file__))
 
 # from numba import jit, njit, vectorize, prange
@@ -21,6 +21,8 @@ t = stopwatch.stopwatch()
 show_plots = True
 # show_plots = False
 FLOAT_TYPE = np.float64
+# hdf_folder = 'data_hdf/'
+hdf_folder = '/scratch/mschoenfeld/data_hdf/'
 
 t.settings(title='full proposal propagation and plotting')
 t.task('read EcoMug data')
@@ -38,11 +40,13 @@ max_mom = '1e5'
 max_mom = '1e9'
 
 file_name = f'EcoMug_{param}_{angle}_{size}_xmom{max_mom}.hdf'
+file_name = 'EcoMug_gaisser_30deg_1e7_min5e2_max3e5.hdf'
+file_name = "EcoMug_gaisser_30deg_1e6_min5e2_max3e5.hdf"
 # file_name = 'EcoMug_std_30deg_1e6_xmom1e9.hdf'
 # size = int(float(size))
 (data_position, data_momentum, data_energy,
     data_theta, data_phi, data_charge) = slib.read_muon_data(
-        "data_hdf/"+file_name, f'main')
+        hdf_folder+file_name, f'main')
 
 a = []
 t.task('plot data')
@@ -63,26 +67,22 @@ reload(plib)
 #     xlabel_unit='GeV', show=show_plots)
 
 
+# file_name = 'EcoMug_std_full_1e6_xmom1e9.hdf'
+# (data_position, data_momentum, data_energy,
+#     data_theta, data_phi, data_charge) = slib.read_muon_data(
+#         hdf_folder+file_name, f'main')
+# plib.plot_distances_std(
+#     np.degrees(data_theta), binsize=50, name='theta dist ',
+#     xlabel_unit='theta', show=show_plots)
 
 
-file_name = 'EcoMug_std_full_1e6_xmom1e9.hdf'
-(data_position, data_momentum, data_energy,
-    data_theta, data_phi, data_charge) = slib.read_muon_data(
-        "data_hdf/"+file_name, f'main')
-plib.plot_distances_std(
-    np.degrees(data_theta), binsize=50, name='theta dist ',
-    xlabel_unit='theta', show=show_plots)
-
-
-file_name = 'EcoMug_std_30deg_1e6_xmom1e9.hdf'
-(data_position, data_momentum, data_energy,
-    data_theta, data_phi, data_charge) = slib.read_muon_data(
-        "data_hdf/"+file_name, f'main')
-plib.plot_distances_std(
-    np.degrees(data_theta), binsize=50, name='theta dist ',
-    xlabel_unit='theta', show=show_plots)
-
-
+# file_name = 'EcoMug_std_30deg_1e6_xmom1e9.hdf'
+# (data_position, data_momentum, data_energy,
+#     data_theta, data_phi, data_charge) = slib.read_muon_data(
+#         hdf_folder+file_name, f'main')
+# plib.plot_distances_std(
+#     np.degrees(data_theta), binsize=50, name='theta dist ',
+#     xlabel_unit='theta', show=show_plots)
 
 
 
@@ -118,15 +118,19 @@ t.task('create prop_minus and plus')
 }
 config = "sandstein.json"
 config = "stdrock.json"
+config = 'sandstein_det.json'
+config = 'sandstein_det_genauer.json'
+config = "config/"+config
 
 pp.InterpolationSettings.tables_path = "/tmp"
+pp.InterpolationSettings.tables_path = "/scratch/mschoenfeld/tables_path"
 prop_minus = pp.Propagator(
     particle_def=pp.particle.MuMinusDef(),
-    path_to_config_file="config/"+config
+    path_to_config_file=config
 )
 prop_plus = pp.Propagator(
     particle_def=pp.particle.MuPlusDef(),
-    path_to_config_file="config/"+config
+    path_to_config_file=config
 )
 init_state = pp.particle.ParticleState()
 init_state.type = 13  # type for muons+
@@ -140,6 +144,7 @@ reload(stopwatch)
 reload(plib)
 t.task('initilaize propagation')
 STATISTICS = int(1e3)
+STATISTICS = len(data_energy)
 distances = np.zeros(STATISTICS, dtype=FLOAT_TYPE)
 energies = np.zeros(STATISTICS, dtype=FLOAT_TYPE)
 energies2 = np.zeros(STATISTICS, dtype=FLOAT_TYPE)
@@ -159,13 +164,16 @@ detector_size = (sizes1, sizes1, sizes1)
 #     radius = 50e2, height = 2e2 )
 
 # detector_pos = (0, 0, -99e2)
-# detector_pos = (0, 0, -1205e2)
-detector_pos = (0, 0, -500e2)
+# detector_pos = (0, 0, -500e2)
+detector_pos = (0, 0, -1205e2)
 detector = pp.geometry.Cylinder(
-    pp.Cartesian3D(detector_pos), inner_radius = 0,
-    radius = 1e20, height = 2e2
+    pp.Cartesian3D(detector_pos),
+    inner_radius = 0,
+    radius = 1e20,
+    height = 1e2
 )
-
+#%%
+# propagation loop
 t.task('propagation-loop', True)
 counter = 0
 # t1 = stopwatch.stopwatch(
@@ -194,8 +202,8 @@ for event in tqdm(range(STATISTICS), disable=False):
             track = prop_minus.propagate(
                 init_state, *propagate_settings)
     except Exception as e:
-        print(e)
-        traceback.print_exc()
+        # print(e)
+        # traceback.print_exc()
         current_muon = (f'[{event}], {position}, (1, {phi}, {theta}), ' +
             f'{energy} MeV, {charge}\n')
         print(f'failed muon: {current_muon}')
@@ -203,7 +211,7 @@ for event in tqdm(range(STATISTICS), disable=False):
         # break
 
     # t1.task('did geometry hit?')  # 4% of loop time
-    if (track.hit_geometry(detector) or True):
+    if (track.hit_geometry(detector) or False):
         # t1.task('write propagate array and write to array')  # 14% loop time
         distance_at_track_end = track.track_propagated_distances()[-1]
         energy_at_track_end = track.track_energies()[-1]

@@ -78,7 +78,7 @@ def plot_hist(array,
     if (xlog):
         plt.xscale('log')
     
-    plt.hist(array, bins=bins, log=xlog, label=name, **kwargs)
+    plt.hist(array, bins=bins, log=xlog, label=label, **kwargs)
     plt.legend()
     if (show_or_multiplot):
         plt.show()

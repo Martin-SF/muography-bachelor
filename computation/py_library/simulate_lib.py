@@ -38,10 +38,21 @@ def read_muon_data(file_name, key):
     data_energy = np.array(data['energy'], dtype=FLOAT_TYPE)
     data_theta = np.array(data['theta'], dtype=FLOAT_TYPE)
     data_phi = np.array(data['phi'], dtype=FLOAT_TYPE)
-    data_charge = np.array(data['charge'], dtype=np.uint32)
+    data_charge = np.array(data['charge'], dtype=np.int8)
 
     return (data_position, data_momentum, data_energy,
              data_theta, data_phi, data_charge)
+
+
+def which_size(a):
+    if a<=int(1e4):
+        return {'npartitions' : 100}
+    if a<=int(1e5):
+        return {'npartitions' : 500}
+    if a<=int(1e6):
+        return {'npartitions' : 1000}
+    if a<=int(1e7) or a>=int(1e7):
+        return {'npartitions' : 10000}
 
 
 @vectorize(nopython=True)

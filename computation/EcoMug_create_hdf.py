@@ -111,8 +111,9 @@ df['phi'] = muon_phi
 df['charge'] = muon_charge
 
 t.task('write to HDF file')
-# df.to_hdf("data_hdf/"+file_name, key=f'muons_{size}')
-df.to_hdf("data_hdf/"+file_name, key=f'main')
+hdf_folder = '/scratch/mschoenfeld/data_hdf/'
+# df.to_hdf(hdf_folder+file_name, key=f'muons_{size}')
+df.to_hdf(hdf_folder+file_name, key=f'main')
 t.stop(silent=True)
 # print(muon_e)
 
@@ -134,7 +135,7 @@ data_theta = muon_theta
 file_name = 'EcoMug_std_full_1e4_xmom1e6.hdf'
 (data_position, data_momentum, data_energy,
     data_theta, data_phi, data_charge) = slib.read_muon_data(
-        "data_hdf/"+file_name, f'main')
+        hdf_folder+file_name, f'main')
 plib.plot_hist(
     np.degrees(data_theta), 
     ylabel = '# of muons',
@@ -152,7 +153,7 @@ plib.plot_hist(
 file_name = 'EcoMug_std_30deg_1e4_xmom1e6.hdf'
 (data_position, data_momentum, data_energy,
     data_theta, data_phi, data_charge) = slib.read_muon_data(
-        "data_hdf/"+file_name, f'main')
+        hdf_folder+file_name, f'main')
 plib.plot_hist(
     np.degrees(data_theta), 
     ylabel='# of muons',
