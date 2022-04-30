@@ -1,3 +1,4 @@
+#%%
 import numpy as np
 import matplotlib.pyplot as plt
 from tqdm import tqdm
@@ -16,10 +17,13 @@ from importlib import reload
 reload(slib)
 reload(plib)
 reload(stopwatch)
+show_plots = True
+print_results = False
+silent = True
 
 
 
-
+hdf_folder = '/scratch/mschoenfeld/data_hdf/'
 # theta full und 30° abschneiden hist plots 
 ############################################################
 ############################################################
@@ -29,7 +33,7 @@ reload(stopwatch)
 file_name = 'EcoMug_std_full_1e4_xmom1e6.hdf'
 (data_position, data_momentum, data_energy,
     data_theta, data_phi, data_charge) = slib.read_muon_data(
-        "data_hdf/"+file_name, f'main')
+        hdf_folder+file_name, f'main')
 plib.plot_hist(
     np.degrees(data_theta), 
     ylabel = '# of muons',
@@ -47,7 +51,7 @@ plib.plot_hist(
 file_name = 'EcoMug_std_30deg_1e4_xmom1e6.hdf'
 (data_position, data_momentum, data_energy,
     data_theta, data_phi, data_charge) = slib.read_muon_data(
-        "data_hdf/"+file_name, f'main')
+        hdf_folder+file_name, f'main')
 plib.plot_hist(
     np.degrees(data_theta), 
     ylabel='# of muons',
@@ -61,3 +65,26 @@ plib.plot_hist(
     savefig=True,
     histtype='step'
 )
+
+# ecomug daten roh plotten 
+file_name = "EcoMug_gaisser_30deg_1e7_min5e2_max3e5.hdf"
+file_name = "EcoMug_gaisser_30deg_1e4_min5e2_max3e5.hdf"
+file_name = "EcoMug_gaisser_30deg_1e5_min5e2_max3e5.hdf"
+file_name = "EcoMug_gaisser_30deg_1e6_min5e2_max3e5.hdf"
+
+file_name = "EcoMug_gaisser_30deg_1e7_min5e2_max3e5.hdf"
+file_name = "EcoMug_gaisser_30deg_1e4_min5e2_max3e5.hdf"
+file_name = "EcoMug_gaisser_30deg_1e5_min5e2_max3e5.hdf"
+file_name = "EcoMug_gaisser_30deg_1e6_min5e2_max3e5.hdf"
+print(f'{file_name}')
+(data_position, data_momentum, data_energy,
+    data_theta, data_phi, data_charge) = slib.read_muon_data(
+        hdf_folder+file_name, f'main')
+STATISTICS = len(data_energy)
+
+t1 = stopwatch.stopwatch(title='full simulation: proposal init and simulation', time_unit='s')
+t1.task('plot EcoMug data')
+plib.plot_energy_std(
+    data_energy, binsize=50,
+    xlabel_unit='GeV', show=show_plots)
+

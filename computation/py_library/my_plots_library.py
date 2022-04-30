@@ -58,7 +58,7 @@ def plot_hist(array,
                 label=None,
                 xlog=False, 
                 binsize=None,
-                show_or_multiplot=True, 
+                show_and_nomultiplot=True, 
                 savefig=False,
                 **kwargs):
     plt.xlabel(fr'${{{x_label1}}} \,/\, \mathrm{{{xlabel_unit}}}$')
@@ -80,9 +80,9 @@ def plot_hist(array,
     
     plt.hist(array, bins=bins, log=xlog, label=label, **kwargs)
     plt.legend()
-    if (show_or_multiplot):
+    if (show_and_nomultiplot):
         plt.show()
-    if (savefig and not (show_or_multiplot)):
+    if (savefig and not (show_and_nomultiplot)):
         plt.savefig(f'figures/{name}.pdf', bbox_inches="tight")
 
 

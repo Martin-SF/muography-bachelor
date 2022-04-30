@@ -4,9 +4,24 @@
 		"cuts":
 		{
 			"e_cut": "inf",
-			"v_cut": 1,
-			"cont_rand": false
+			"v_cut": 0.01,
+			"cont_rand": true
+		},
+		"do_interpolation" : true,
+		"exact_time" : true,
+		"scattering": 
+		{
+			"multiple_scattering" : "noscattering",
+			"multiple_scattering_multiplier" : 1.0,
+			"stochastic_deflection" : ["DefaultIoniz", "DefaultBrems", "DefaultEpair", "DefaultPhotonuclear"],
+			"stochastic_deflection_multiplier" : {
+				"Ioniz" : 1.0,
+				"Brems" : 1.0,
+				"Epair" : 1.0,
+				"Photonuclear" : 1.0
+			}
 		}
+
 	},
 	"sectors": [
 		{

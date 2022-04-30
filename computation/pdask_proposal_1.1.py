@@ -25,16 +25,24 @@ client = Client("localhost:8786") # phobos
 FLOAT_TYPE = np.float64
 # hdf_folder = 'data_hdf/'
 hdf_folder = '/scratch/mschoenfeld/data_hdf/'
+worker_number = 2400
 show_plots = True
 print_results = False
+silent = True
+file_name = "EcoMug_gaisser_30deg_1e4_min5e2_max3e5.hdf"
+file_name = "EcoMug_gaisser_30deg_1e5_min5e2_max3e5.hdf"
+file_name = "EcoMug_gaisser_30deg_1e6_min5e2_max3e5.hdf"
+file_name = "EcoMug_gaisser_30deg_1e7_min5e2_max3e5.hdf"
+print(f'{file_name}')
 import propagator as proper
 
-# %%
-t1 = stopwatch.stopwatch(title='full proposal init and simulation parallized with dask')
+# %
+t1 = stopwatch.stopwatch(
+    title='full proposal init and simulation parallized with dask',
+    time_unit='s')
 t1.task('initialize proposal, making interpol tables')
 ######################################################################
 ######################################################################
-# def main():
 
 client.upload_file('propagator.py')
 reload(proper)
@@ -42,106 +50,87 @@ print(f'config : {proper.config}')
 reload(stopwatch)
 reload(plib)
 
-t1.task('read EcoMug data')
-{
-}
-file_name = "EcoMug_gaisser_30deg_1e4_min5e2_max3e5.hdf"
-file_name = "EcoMug_gaisser_30deg_1e5_min5e2_max3e5.hdf"
-file_name = "EcoMug_gaisser_30deg_1e6_min5e2_max3e5.hdf"
-file_name = "EcoMug_gaisser_30deg_1e7_min5e2_max3e5.hdf"
-print(f'{file_name}')
-(data_position, data_momentum, data_energy,
-    data_theta, data_phi, data_charge) = slib.read_muon_data(
-        hdf_folder+file_name, f'main')
-STATISTICS = len(data_energy)
+STATISTICS = len(pd.read_hdf(
+    hdf_folder+file_name, key=f'main', columns=['charge']))
+chunksize = round((STATISTICS/worker_number)+1)
 
-t1 = stopwatch.stopwatch(title='full simulation: proposal init and simulation')
-t1.task('plot EcoMug data')
-# plib.plot_energy_std(
-#     data_energy, binsize=50,
-#     xlabel_unit='GeV', show=show_plots)
+meta={'hit_detector': bool, 
+    'distances_f_raw': FLOAT_TYPE, 
+    'energies_f_raw': FLOAT_TYPE, 
+    'energies_i_raw': FLOAT_TYPE, 
+    'point1x_raw': FLOAT_TYPE, 
+    'point1y_raw': FLOAT_TYPE, 
+    'point1z_raw': FLOAT_TYPE, 
+    'point2x_raw': FLOAT_TYPE,
+    'point2y_raw': FLOAT_TYPE,
+    'point2z_raw': FLOAT_TYPE}
 
-t1.task('dask: read hdf, to_bag, map')
-partition_setting = slib.which_size(STATISTICS)
-# partition_setting = {'npartitions' : 4800}
-partition_setting = {'npartitions' : 4800}
-partition_setting = {'npartitions' : 480}
-partition_setting = {'npartitions' : 48}
-partition_setting['npartitions'] = STATISTICS//48
-chunksize = partition_setting['npartitions']
-chunksize = STATISTICS//48000
-# chunksize = 100
 with performance_report(filename="dask-report.html"):
-    df = dd.read_hdf(hdf_folder+file_name, key='main',
+    ddf = dd.read_hdf(hdf_folder+file_name, key='main',
                     columns=['energy', 'theta', 'phi', 'charge'], chunksize=chunksize)
-    dfb = df.to_bag()
-    # b = df.to_bag()
-    # b = client.scatter(b)
-    # df = df.persist()
-    # Scatter?
+    dfb = ddf.to_bag()
+    dfb = dfb.map(proper.pp_propagate) #27s
+    ddfr = dfb.to_dataframe(meta=meta)
     t1.task('bag compute')
-    results = dfb.map(proper.pp_propagate) #27s
+    results = client.compute(ddfr, pure=False).result()
 
-    # results = b.map(proper.pp_propagate)
-    # results = client.map(proper.pp_propagate, df.to_bag(), pure=False)
-    # results = client.gather(results)
-    # results = client.map(proper.pp_propagate, df, pure=False)
-    # results = client.map(proper.pp_propagate, df['energy'], df['theta'], df['phi'], df['charge'], pure = True)
-    results = results.compute(pure=False)
-    # results = client.gather(results)
-    # results = list(results)
-    # results.to_hdf(hdf_folder+'results_'+file_name, key=f'main', format='table')
-    # results.compute(pure=False)
-t1.stop()
+t1.stop(False)
 #%%
 t2 = stopwatch.stopwatch(title='processing of results')
 t2.task('nachbereitung')
 ######################################################################
 ######################################################################
 
-if (False):
-    print('print results')
-    print(results)
 
-results_array = np.array(results)
-
-hit_detector = np.array(results_array[:, 0], dtype=bool)
-distances_f_raw = np.array(results_array[:, 1], dtype=FLOAT_TYPE)
-energies_f_raw = np.array(results_array[:, 2], dtype=FLOAT_TYPE)
-energies_i_raw = np.array(results_array[:, 3], dtype=FLOAT_TYPE)
-# point1_raw = np.array(results_array[:, 4], dtype=float)
-# point2_raw = np.array(results_array[:, 5], dtype=float)
+hit_detector = np.array(results['hit_detector'], dtype=bool)
+distances_f_raw = np.array(results['distances_f_raw'], dtype=FLOAT_TYPE)
+energies_f_raw = np.array(results['energies_f_raw'], dtype=FLOAT_TYPE)
+energies_i_raw = np.array(results['energies_i_raw'], dtype=FLOAT_TYPE)
+point1x_raw = np.array(results['point1x_raw'], dtype=FLOAT_TYPE)
+point1y_raw = np.array(results['point1y_raw'], dtype=FLOAT_TYPE)
+point1z_raw = np.array(results['point1z_raw'], dtype=FLOAT_TYPE)
+point2x_raw = np.array(results['point2x_raw'], dtype=FLOAT_TYPE)
+point2y_raw = np.array(results['point2y_raw'], dtype=FLOAT_TYPE)
+point2z_raw = np.array(results['point2z_raw'], dtype=FLOAT_TYPE)
 
 counter = int(sum(hit_detector))  #len von allen die True sind
-distances = np.zeros(counter, dtype=FLOAT_TYPE)
 energies_f = np.zeros(counter, dtype=FLOAT_TYPE)
 energies_i = np.zeros(counter, dtype=FLOAT_TYPE)
-# start_end_points = np.zeros(shape=(STATISTICS*2, 3), dtype=FLOAT_TYPE)
-# point1 = []
-# point2 = []
+distances_f = np.zeros(counter, dtype=FLOAT_TYPE)
+start_points = np.zeros(shape=(counter, 3), dtype=FLOAT_TYPE)
+end_points = np.zeros(shape=(counter, 3), dtype=FLOAT_TYPE)
+start_end_points = np.zeros(shape=(counter*2, 3), dtype=FLOAT_TYPE)
 
 i2 = 0
-for i in range(len(hit_detector)):
+for i in range(STATISTICS):
     if hit_detector[i] == True:
         energies_f[i2] = energies_f_raw[i]
         energies_i[i2] = energies_i_raw[i]
-        distances[i2] = distances_f_raw[i]
+        distances_f[i2] = energies_f_raw[i]
+
+        start_points[i2] = np.array([point1x_raw[i], point1y_raw[i], point1z_raw[i]])
+        end_points[i2] = np.array([point2x_raw[i], point2y_raw[i], point2z_raw[i]])
+
+        start_end_points[i2*2] = start_points[i2]
+        start_end_points[i2*2+1] = end_points[i2]
         i2 += 1
 
 df = pd.DataFrame()
 df['energies_f'] = energies_f
 df['energies_i'] = energies_i
-df['distances'] = distances
-# df['position'] = muon_pos  # start end points
-t2.task('write to HDF file')
-file_name = 'results_'+file_name
-df.to_hdf(hdf_folder+file_name, key=f'main', format='table')
-# dd.compute()
+df['distances'] = distances_f
+df['point1x'] = start_points[:, 0]
+df['point1y'] = start_points[:, 1]
+df['point1z'] = start_points[:, 2]
+df['point2x'] = end_points[:, 0]
+df['point2y'] = end_points[:, 1]
+df['point2z'] = end_points[:, 2]
 
-t2.stop()
-#%%
-t3 = stopwatch.stopwatch(title='plotting of results')
-t3.task('print')
+t2.task('write to HDF file')
+df.to_hdf(hdf_folder+'results_'+file_name, key=f'main', format='table')
+
+#
+t2.task('print')
 ######################################################################
 ######################################################################
 
@@ -157,7 +146,9 @@ f'{counter} of {STATISTICS} muons ({counter/STATISTICS*100:.4}%) ' +
 )
 print(f'min E_i at detector is {min(energies_i)/1000:.1f} GeV')
 
-# %
+t2.stop(silent)
+# %%
+t3 = stopwatch.stopwatch(title='plotting of results')
 # plots
 ######################################################################
 ######################################################################
@@ -165,6 +156,14 @@ print(f'min E_i at detector is {min(energies_i)/1000:.1f} GeV')
 ######################################################################
 reload(plib)
 t3.task('3D plot')
+
+# file_name = "EcoMug_gaisser_30deg_1e4_min5e2_max3e5.hdf"
+# df = pd.read_hdf(hdf_folder+'results_'+file_name, key='main')
+
+# energies_f = df['energies_f']
+# energies_i = df['energies_i'] 
+# distances = df['distances']
+
 # plib.plot_3D_start_end(
 #     start_end_points, proper.detector_pos, detector_size,
 #     elev=10, azim=70, alpha=0.3, dpi=1, show=show_plots,
@@ -184,32 +183,61 @@ t3.task('3D plot')
 #     energies_i/1000, binsize=100, xlabel_unit='GeV', show=show_plots, name='E_i at Detector'
 # )
 
-# plib.plot_hist(
-#     energies_i/1000, 
-#     ylabel = '# of muons',
-#     x_label1 = 'E',
-#     xlabel_unit = 'GeV',
-#     label=r'$muons$',
-#     xlog=True,
-#     binsize=30,
-#     show_or_multiplot=False,
-#     savefig=True,
-#     histtype='bar'
-# )
 plib.plot_hist(
-    energies_f/1000, 
+    energies_i/1000, 
     ylabel = '# of muons',
     x_label1 = 'E',
     xlabel_unit = 'GeV',
-    label=r'$muons$',
+    label=r'$E_i$',
     xlog=True,
+    binsize=100,
+    show_and_nomultiplot=False,
+    histtype='step'
+)
+plib.plot_hist(
+    energies_f/1000, 
+    name='Muons at detector',
+    ylabel = '# of muons',
+    x_label1 = 'E',
+    xlabel_unit = 'GeV',
+    label=r'$E_f$',
+    xlog=True,
+    binsize=100,
+    show_and_nomultiplot=True,
+    savefig=True,
+    histtype='step'
+)
+plib.plot_hist(
+    end_points[:, 2]/100*(-1),
+    ylabel = '# of muons',
+    x_label1 = 'd',
+    xlabel_unit = 'm',
+    label=r'$muons$',
+    name='z-coordinate of muons at detector',
+    xlog=True,
+    binsize=100,
+    show_and_nomultiplot=True,
+    savefig=True,
+    histtype='bar'
+)
+plib.plot_hist(
+    distances/100/1000, 
+    name='total distance of muons at detector',
+    ylabel = '# of muons',
+    x_label1 = 'd',
+    xlabel_unit = 'm',
+    label=r'$muons$',
+    xlog=False,
     binsize=30,
-    show_or_multiplot=False,
+    show_and_nomultiplot=True,
     savefig=True,
     histtype='bar'
 )
 
-t3.stop()
+
+t3.stop(silent)
 
 # if __name__ == '__main__':
 #     main()
+
+# %%

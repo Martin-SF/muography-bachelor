@@ -14,7 +14,8 @@ pp.InterpolationSettings.tables_path = "/scratch/mschoenfeld/tables_path"
 config = "config_cylinder-huge.json"
 config = 'sandstein.json'
 config = 'sandstein_det_genauer.json'
-# print(f'config : {config}')
+config = 'sandstein_det.json'
+print(f'config : {config}')
 path_to_config_file = "config/"+config
 pp.RandomGenerator.get().set_seed(int(np.random.random()*10000))
 
@@ -83,28 +84,39 @@ def pp_propagate(input):
         # muons.append(current_muon)
 
     # t1.task('did geometry hit?')  # 4% of loop time
-    if (track.hit_geometry(detector) or False):
+    # if (track.hit_geometry(detector) or False):
+    point2 = plib.pp_get_pos(track.track()[-1].position)
+    if ((point2[2] <= detector_pos[2]) or False):
         hit_detector = True
         # t1.task('write propagate array and write to array')  # 14% loop time
         distance_at_track_end = track.track_propagated_distances()[-1]
         energy_at_track_end = track.track_energies()[-1]
 
         # t1.task('add start points to array')  # 41% of loop time TODO
-        point1 = plib.pp_get_pos(init_state.position)
-        point2 = plib.pp_get_pos(track.track()[-1].position)
+        point1 =  plib.pp_get_pos(init_state.position)
         # point1 = pp_get_pos(init_state.position)
         # point2 = pp_get_pos(track.track()[-1].position)
+        point1x=point1[0]
+        point1y=point1[1]
+        point1z=point1[2]
+        point2x=point2[0]
+        point2y=point2[1]
+        point2z=point2[2]
 
     else:
         hit_detector = False
         distance_at_track_end = 0
         energy_at_track_end = 0
-        point1 = 0
-        point2 = 0
+        point1x = 0
+        point1y = 0
+        point1z = 0
+        point2x = 0
+        point2y = 0
+        point2z = 0
 
     # print(position, energy_init, theta, phi, charge)
     # hit_detector = False  
     # t1.stop()
 
     return (hit_detector, distance_at_track_end, energy_at_track_end, 
-    energy_init, point1, point2)
+    energy_init, point1x, point1y, point1z, point2x, point2y, point2z)

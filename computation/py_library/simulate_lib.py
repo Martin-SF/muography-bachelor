@@ -23,8 +23,8 @@ def transform_position_posxyz(x, y, z):
     return a
 
 
-def read_muon_data(file_name, key):
-    data = pd.read_hdf(file_name, key=key)
+def read_muon_data(file_name, key, **kwargs):
+    data = pd.read_hdf(file_name, key=key, **kwargs)
     # if 'data' not in locals():
     #     data = pd.read_hdf(file_name, key=f'muons_{size}')
 

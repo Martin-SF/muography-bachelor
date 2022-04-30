@@ -4,7 +4,7 @@
 # dask
 *.dirlock
 *.lock
-/computation/dask-worker-space
+/dask-worker-space
 
 # Prerequisites
 *.d
@@ -290,6 +290,7 @@ _deps
 ## Build tool directories for auxiliary files
 # latexrun
 latex.out/
+build/
 
 ## Auxiliary and intermediate files from other packages:
 # algorithms

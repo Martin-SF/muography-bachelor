@@ -20,27 +20,6 @@
 				"Epair" : 1.0,
 				"Photonuclear" : 1.0
 			}
-		},
-		"CrossSections" : {
-			"brems": {
-				"parametrization": "KelnerKokoulinPetrukhin",
-				"multiplier" : 1.0,
-				"lpm": true
-			},
-			"epair": {
-				"parametrization": "KelnerKokoulinPetrukhin",
-				"multiplier" : 1.0,
-				"lpm": true
-			},
-			"ioniz": {
-				"parametrization": "BetheBlochRossi",
-				"multiplier" : 1.0
-			},
-			"photo": {
-				"parametrization": "AbramowiczLevinLevyMaor97",
-				"multiplier" : 1.0,
-				"shadow": "ButkevichMikheyev"
-			}
 		}
 	},
 	"sectors": [
