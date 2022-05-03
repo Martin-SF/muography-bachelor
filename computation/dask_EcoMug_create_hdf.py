@@ -24,10 +24,10 @@ client = Client("localhost:8786") # phobos
 
 # hdf_folder = 'data_hdf/'
 hdf_folder = '/scratch/mschoenfeld/data_hdf/'
+npartitions = 24
 
-#%%
+#%
 # GERERATING full spectra muons ECOMUG
-############################################################
 ############################################################
 ############################################################
 ############################################################
@@ -43,14 +43,22 @@ reload(stopwatch)
 file_name = emo.file_name
 print(f'{file_name}')
 STATISTICS = int(float(emo.size)) # 1e7:4.5min; 1e6:27s; 2e5:5,4s; 1e4: 0,3s
-# STATISTICS = int(float(size)) # 1e7:4.5min; 1e6:27s; 2e5:5,4s; 1e4: 0,3s
 
-b = db.from_sequence(STATISTICS*[bool], partition_size=10000)
+
+t.task('start')
+
+worker_number = 2400
+chunksize = round((STATISTICS/worker_number))+1
+
+initial_arr = [True, False]
+arr = np.random.choice(initial_arr, size=int(STATISTICS))
+
+b = db.from_sequence(map(bool, arr), partition_size=chunksize)
 b = b.map(emo.Ecomug_generate)
+b = b.to_dataframe()
 results = b.compute(pure=False)
-# t.stop()
 
-#%
+
 if (False):    
         print(f'print results {results}')
 elapsed_time_total = t.stop()['TOTAL']

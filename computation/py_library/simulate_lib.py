@@ -4,6 +4,7 @@ import numpy as np
 from numba import vectorize
 import proposal as pp
 
+
 FLOAT_TYPE = np.float64
 MU_MINUS_MASS_squared_GeV = (pp.particle.MuMinusDef().mass/1000)**2
 
@@ -66,3 +67,8 @@ def change_zenith_convention(angle_in_rad):
 @vectorize(nopython=True)
 def calculate_energy_vectorized_GeV(momentum):
     return np.sqrt(momentum * momentum + MU_MINUS_MASS_squared_GeV)
+
+
+@vectorize(nopython=True)
+def calculate_momentum_vectorized_GeV(energy):
+    return np.sqrt(energy * energy - MU_MINUS_MASS_squared_GeV)

@@ -59,7 +59,8 @@ def plot_hist(array,
                 xlog=False, 
                 binsize=None,
                 show_and_nomultiplot=True, 
-                savefig=False,
+                savefig=True,
+                return_bin=False,
                 **kwargs):
     plt.xlabel(fr'${{{x_label1}}} \,/\, \mathrm{{{xlabel_unit}}}$')
     plt.ylabel(f"{ylabel}")
@@ -78,17 +79,19 @@ def plot_hist(array,
     if (xlog):
         plt.xscale('log')
     
-    plt.hist(array, bins=bins, log=xlog, label=label, **kwargs)
+    bins_output = plt.hist(array, bins=bins, log=xlog, label=label, **kwargs)
     plt.legend()
+    if (savefig and (show_and_nomultiplot)):
+        plt.savefig(f'figures/{name}.pdf', bbox_inches="tight")
     if (show_and_nomultiplot):
         plt.show()
-    if (savefig and not (show_and_nomultiplot)):
-        plt.savefig(f'figures/{name}.pdf', bbox_inches="tight")
+    if return_bin==True:
+        return bins_output
 
 
 def plot_3D_start_end(dataset, 
-            detector_pos, 
-            detector_size, 
+            detector_pos = None, 
+            detector_size = None, 
             elev=30.0, 
             azim=30, 
             alpha=0.1, 
@@ -101,22 +104,25 @@ def plot_3D_start_end(dataset,
     # fig = plt.figure(figsize=(16, 16))
     fig = plt.figure(figsize=(8, 8))
     ax = plt.axes(projection='3d')
-    ax.set_xlabel('x [cm]')
-    ax.set_ylabel('y [cm]')
-    ax.set_zlabel('z [cm]')
+    ax.set_xlabel('x [m]')
+    ax.set_ylabel('y [m]')
+    ax.set_zlabel('z [m]')
     ax.view_init(elev=elev, azim=azim)
     ax.set_title(title, pad = -200)
 
-    # üöpt 
-    ax.plot(dataset[:,0], dataset[:,1], dataset[:,2], '.', c='orange', markersize=4)
+    # plot first startpoint
+    ax.plot(dataset[0,0], dataset[0,1], dataset[0,2], '.', c='black', markersize=30, zorder=4, label='particle origin')
+    
+    # plot alle points
+    ax.plot(dataset[:,0], dataset[:,1], dataset[:,2], '.', c='orange', markersize=4, label='muon final position')
 
-    # ls = dataset[:,0:3].reshape((-1,2,3))
-    # collection = Line3DCollection(ls, linewidths=0.5, colors='blue', alpha=alpha, zorder=0, label = f'# of particles {len(dataset)/2:.0f}')
-    # ax.add_collection(collection)
+    ls = dataset[:,0:3].reshape((-1,2,3))
+    collection = Line3DCollection(ls, linewidths=0.5, colors='blue', alpha=alpha, zorder=0, label = f'linear muon trajectories')
+    ax.add_collection(collection)
 
-    plotCubeAt(pos=detector_pos, size=detector_size, ax=ax, color='black', alpha=1)
+    if (detector_pos!=None) and (detector_size!=None):
+        plotCubeAt(pos=detector_pos, size=detector_size, ax=ax, color='black', alpha=1)
 
-    ax.plot(dataset[0,0], dataset[0,1], dataset[0,2], '.', c='black', markersize=40, zorder=4, label='particle origin')
     ax.legend()
     # ax.set_aspect('equal')
 

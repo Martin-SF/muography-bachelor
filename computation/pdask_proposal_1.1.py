@@ -11,6 +11,7 @@ plt.rcParams['figure.figsize'] = (8, 6)
 plt.rcParams['font.size'] = 12
 plt.rcParams['lines.linewidth'] = 2
 plt.rcParams['axes.labelsize'] = 14
+plt.rcParams.update({'figure.dpi':70})
 # from numba import jit, njit, vectorize, prange
 from importlib import reload
 import py_library.my_plots_library as plib
@@ -25,16 +26,30 @@ client = Client("localhost:8786") # phobos
 FLOAT_TYPE = np.float64
 # hdf_folder = 'data_hdf/'
 hdf_folder = '/scratch/mschoenfeld/data_hdf/'
-worker_number = 2400
+worker_number = 240
+{
+'''
+1e7
+workers:
+24 -> crash coudnlt gather keys
+2400 crash 
+240 crash 
+'''
+}
 show_plots = True
 print_results = False
 silent = True
-file_name = "EcoMug_gaisser_30deg_1e4_min5e2_max3e5.hdf"
-file_name = "EcoMug_gaisser_30deg_1e5_min5e2_max3e5.hdf"
-file_name = "EcoMug_gaisser_30deg_1e6_min5e2_max3e5.hdf"
-file_name = "EcoMug_gaisser_30deg_1e7_min5e2_max3e5.hdf"
+file_name = "EcoMug_gaisser_30deg_1e4_min2e2_max2e5.hdf"
+file_name = "EcoMug_gaisser_30deg_1e5_min2e2_max2e5.hdf"
+file_name = "EcoMug_gaisser_30deg_1e7_min2e2_max2e5.hdf"
+file_name = "EcoMug_gaisser_30deg_1e6_min2e2_max2e5.hdf"
+file_name = "EcoMug_gaisser_30deg_1e4_min7e2_max2e5.hdf"
+file_name = "EcoMug_gaisser_30deg_1e5_min7e2_max2e5.hdf"                
+file_name = "EcoMug_gaisser_30deg_1e7_min7e2_max2e5.hdf"
+file_name = "EcoMug_gaisser_30deg_1e6_min7e2_max2e5.hdf"                
+file_name = "EcoMug_gaisser_30deg_1e6_min6e2_max2e5.hdf"                
+file_name = "EcoMug_gaisser_30deg_1e5_min6e2_max2e5.hdf"                
 print(f'{file_name}')
-import propagator as proper
 
 # %
 t1 = stopwatch.stopwatch(
@@ -44,15 +59,16 @@ t1.task('initialize proposal, making interpol tables')
 ######################################################################
 ######################################################################
 
+import propagator as proper
 client.upload_file('propagator.py')
 reload(proper)
-print(f'config : {proper.config}')
+# print(f'config : {proper.config}')
 reload(stopwatch)
 reload(plib)
 
 STATISTICS = len(pd.read_hdf(
     hdf_folder+file_name, key=f'main', columns=['charge']))
-chunksize = round((STATISTICS/worker_number)+1)
+chunksize = round((STATISTICS/worker_number))+1
 
 meta={'hit_detector': bool, 
     'distances_f_raw': FLOAT_TYPE, 
@@ -65,17 +81,20 @@ meta={'hit_detector': bool,
     'point2y_raw': FLOAT_TYPE,
     'point2z_raw': FLOAT_TYPE}
 
+t1.task('dask compute', True)
 with performance_report(filename="dask-report.html"):
     ddf = dd.read_hdf(hdf_folder+file_name, key='main',
                     columns=['energy', 'theta', 'phi', 'charge'], chunksize=chunksize)
+    
     dfb = ddf.to_bag()
     dfb = dfb.map(proper.pp_propagate) #27s
     ddfr = dfb.to_dataframe(meta=meta)
-    t1.task('bag compute')
-    results = client.compute(ddfr, pure=False).result()
+    # ddfr.to_hdf(hdf_folder+'results_raw_'+file_name, key=f'main', format='table')
 
-t1.stop(False)
-#%%
+    results = client.compute(ddfr).result()
+
+t1.stop(silent)
+# %
 t2 = stopwatch.stopwatch(title='processing of results')
 t2.task('nachbereitung')
 ######################################################################
@@ -106,7 +125,7 @@ for i in range(STATISTICS):
     if hit_detector[i] == True:
         energies_f[i2] = energies_f_raw[i]
         energies_i[i2] = energies_i_raw[i]
-        distances_f[i2] = energies_f_raw[i]
+        distances_f[i2] = distances_f_raw[i]
 
         start_points[i2] = np.array([point1x_raw[i], point1y_raw[i], point1z_raw[i]])
         end_points[i2] = np.array([point2x_raw[i], point2y_raw[i], point2z_raw[i]])
@@ -144,7 +163,7 @@ print(
 f'{counter} of {STATISTICS} muons ({counter/STATISTICS*100:.4}%) ' +
 'hit the detector'
 )
-print(f'min E_i at detector is {min(energies_i)/1000:.1f} GeV')
+print(f'min(E_i) at detector is {min(energies_i)/1000:.1f} GeV')
 
 t2.stop(silent)
 # %%
@@ -157,18 +176,28 @@ t3 = stopwatch.stopwatch(title='plotting of results')
 reload(plib)
 t3.task('3D plot')
 
-# file_name = "EcoMug_gaisser_30deg_1e4_min5e2_max3e5.hdf"
+
+
+#%
+
+# file_name = "EcoMug_gaisser_30deg_1e6_min5e2_max3e5.hdf"
 # df = pd.read_hdf(hdf_folder+'results_'+file_name, key='main')
 
 # energies_f = df['energies_f']
 # energies_i = df['energies_i'] 
 # distances = df['distances']
 
+plib.plot_3D_start_end(
+    start_end_points/100,
+    elev=10, azim=70, alpha=0.3, dpi=1, show=show_plots,
+    title=f'# of particles: {counter}'
+)
 # plib.plot_3D_start_end(
 #     start_end_points, proper.detector_pos, detector_size,
 #     elev=10, azim=70, alpha=0.3, dpi=1, show=show_plots,
 #     title=f'# of particles: {counter}'
 # )
+#%%
 # t3.task('distances plot')
 # plib.plot_distances_std(
 #     distances/100, 100, xlabel_unit='m', show=show_plots

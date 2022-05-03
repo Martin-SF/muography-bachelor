@@ -13,8 +13,10 @@ import os, sys
 pp.InterpolationSettings.tables_path = "/scratch/mschoenfeld/tables_path"
 config = "config_cylinder-huge.json"
 config = 'sandstein.json'
-config = 'sandstein_det_genauer.json'
 config = 'sandstein_det.json'
+config = 'sandstein_det_genauer_Wasser.json'
+config = 'sandstein_det_genauer_100m_h20.json'
+config = 'sandstein_det_genauer.json'
 print(f'config : {config}')
 path_to_config_file = "config/"+config
 pp.RandomGenerator.get().set_seed(int(np.random.random()*10000))
@@ -50,15 +52,10 @@ def pp_propagate(input):
     theta = input[1]
     phi = input[2]
     charge = input[3]
-    # theta = 0
-    phi = 0
-    charge = 0
     # print(os.getcwd())
-    # position = (0,0,0)
     # t1 = stopwatch(
     # title='inside propagation loop', time_unit='µs',
     # selfexecutiontime_micros=0.7)  # total time when hit target 38 µs
-    # os.chdir(kwargs['path'])  # notwendig!!
 
     # t1.task('give muon to proposal')  # 17% of loop time
     # init_state.momentum = momentum  # MeV
@@ -66,7 +63,6 @@ def pp_propagate(input):
     init_state.energy = energy_init   # MeV
     # init_state.position = pp.Cartesian3D(position)
     init_state.direction = pp.Cartesian3D(pp.Spherical3D(1, phi, theta))
-    # t1.task('create propagator') # 20% of loop time
 
     try:
         if (charge == 1):
@@ -104,19 +100,23 @@ def pp_propagate(input):
         point2z=point2[2]
 
     else:
+        # print(track.track()[-1].position.y)
+        # print(input)
         hit_detector = False
-        distance_at_track_end = 0
-        energy_at_track_end = 0
-        point1x = 0
-        point1y = 0
-        point1z = 0
-        point2x = 0
-        point2y = 0
-        point2z = 0
+        distance_at_track_end = None
+        energy_at_track_end = None
+        point1x = None
+        point1y = None
+        point1z = None
+        point2x = None
+        point2y = None
+        point2z = None
+        
 
     # print(position, energy_init, theta, phi, charge)
     # hit_detector = False  
     # t1.stop()
+
 
     return (hit_detector, distance_at_track_end, energy_at_track_end, 
     energy_init, point1x, point1y, point1z, point2x, point2y, point2z)

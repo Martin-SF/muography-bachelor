@@ -4,7 +4,7 @@
 		"cuts":
 		{
 			"e_cut": "inf",
-			"v_cut": 0.01,
+			"v_cut": 1,
 			"cont_rand": true
 		},
 		"do_interpolation" : true,
