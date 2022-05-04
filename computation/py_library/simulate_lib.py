@@ -1,7 +1,9 @@
 
+import os
 import pandas as pd
 import numpy as np
 from numba import vectorize
+# os.environ['LD_LIBRARY_PATH'] = '/home/mschoenfeld/envs/env_3.10/lib'
 import proposal as pp
 
 

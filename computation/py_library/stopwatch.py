@@ -132,7 +132,7 @@ class stopwatch:
         min_padding1 = self.__padding(self.tasks, self.min_task_name_length)
         min_padding2 = self.__padding(self.durations, self.min_time_length)
         # print(' ----------------- ')
-        s = f'Task {self.tasks[i]:{min_padding1}} took {(elapsed_time):{min_padding2}.1f} {self.time_unit}'
+        s = f'{self.tasks[i]:{min_padding1}} took {(elapsed_time):{min_padding2}.1f} {self.time_unit}'
         print(s)
 
     def __f_elapsed_time(self, t1, t2):
