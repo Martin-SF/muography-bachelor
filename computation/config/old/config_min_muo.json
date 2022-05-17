@@ -1,0 +1,63 @@
+{
+	"global":
+	{
+		"cuts":
+		{
+			"e_cut": 500,
+			"v_cut": 1,
+			"cont_rand": false
+		}
+	},
+	"sectors": [
+		{
+			"medium": "standardrock",
+			"geometries": [
+				{
+					"hierarchy": 0,
+					"shape": "sphere",
+					"origin": [0, 0, 0],
+					"outer_radius": 1e20
+				}
+			]
+		},
+		{
+			"medium": "Copper", 
+			"geometries": [
+				{
+					"hierarchy": 20,
+					"shape": "box",
+					"origin": [0, 0, -100e2],
+					"length": 20e2,
+					"width": 20e2,
+					"height": 20e2
+				}
+			]
+		},
+		{
+			"medium": "ice", 
+			"geometries": [
+				{
+					"hierarchy": 20,
+					"shape": "Cylinder",
+					"origin": [0, 0, 0],
+					"inner_radius" : 15e2,
+					"outer_radius": 16e2,
+					"height": -500e2
+				}
+			]
+		},
+		{
+			"medium": "ice", 
+			"geometries": [
+				{
+					"hierarchy": 20,
+					"shape": "box",
+					"origin": [0, 0, -500e2],
+					"length": 10e5,
+					"width": 10e5,
+					"height": 10e2
+				}
+			]
+		}
+	]
+}

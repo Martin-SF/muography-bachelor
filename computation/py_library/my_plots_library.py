@@ -31,7 +31,7 @@ def plot_energy_std(energy_array, binsize = 20,
     plt.title(name)
     bins = np.geomspace(min(energy_array), max(energy_array), binsize)
     plt.hist(energy_array, bins=bins, log=True, label=name, **kwargs)
-    # plt.savefig(f'figures/{name}.pdf', bbox_inches="tight")
+    plt.savefig(f'figures/{name}.pdf', bbox_inches="tight")
     # if (show):
     #     plt.show()
 

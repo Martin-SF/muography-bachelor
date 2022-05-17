@@ -53,10 +53,10 @@ file_name = emo.file_name
 print(f'{file_name}')
 STATISTICS = int(float(emo.size)) # 1e7:4.5min; 1e6:27s; 2e5:5,4s; 1e4: 0,3s
 
-worker_number = 2400
-chunksize = round((STATISTICS/worker_number))+1
+N_tasks = 23
+chunksize = round((STATISTICS/N_tasks))+1
 
-tmphdf = 'tests_old_scripts/tmp.hdf'
+tmphdf = '/tmp/tmp.hdf'
 df = pd.DataFrame()
 df['0'] = np.zeros(STATISTICS)
 df.to_hdf(tmphdf, key=f'main', format='table')
@@ -101,14 +101,16 @@ print(f'it took {elapsed_time_total/(60):2.1f} min to complete')
 # quit()
 #%%
 #######################
+reload(plib)
 plib.plot_energy_std(
     muon_e, binsize=50,
-    xlabel_unit='GeV', show=True)
+    xlabel_unit='GeV', show=True,
+        name='1e7 muons')
 
 a = []
 t.task('plot data')
 for i in muon_e:
-    if (i>1000):
+    if (i>800):
         a.append(i)
 
 len_a = len(a)

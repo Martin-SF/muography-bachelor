@@ -1,5 +1,4 @@
 #%%
-
 import traceback
 import proposal as pp
 import numpy as np
@@ -9,17 +8,39 @@ import py_library.simulate_lib as slib
 import os, sys
 # os.chdir(os.path.dirname(__file__))
 
-# pp.InterpolationSettings.tables_path = "/tmp"
-pp.InterpolationSettings.tables_path = "/scratch/mschoenfeld/tables_path"
 config = "config_cylinder-huge.json"
 config = 'sandstein.json'
 config = 'sandstein_det.json'
-config = 'sandstein_det_genauer_Wasser.json'
 config = 'sandstein_det_genauer_100m_h20.json'
 config = 'sandstein_det_genauer.json'
+config = 'sandstein_det_genauer_Wasser.json'
+config = 'stdrock_perf_tests.json'
+config = 'stdrock_perf_tests2ndtiefe.json'
+config = 'kirchhellen1.json'
+config = 'KH_800m.json'
 # print(f'config : {config}')
 path_to_config_file = "config/"+config
+
+# max_distance, min_energy, hierarchy_condition
+propagate_settings = (1e20, 0, 10)  
+# da nur z abgefragt wird, ist das nicht der detector 
+# detector_pos = (0, 0, -1205e2)  #old
+detector_pos = (0, 0, -1259e2)
+# if config == 'kirchhellen1.json':
+# else:
+#     detector_pos = (0, 0, -1204.5e2)
+
+detector = pp.geometry.Cylinder(
+    pp.Cartesian3D(detector_pos),
+    inner_radius = 0,
+    radius = 1e20,
+    height = 1e2
+)
+
 pp.RandomGenerator.get().set_seed(int(np.random.random()*10000))
+pp.InterpolationSettings.nodes_utility = 1000
+# pp.InterpolationSettings.tables_path = "/tmp"
+pp.InterpolationSettings.tables_path = "/scratch/mschoenfeld/tables_path"
 
 prop_plus = pp.Propagator(
     particle_def=pp.particle.MuPlusDef(),
@@ -29,16 +50,6 @@ prop_plus = pp.Propagator(
 prop_minus = pp.Propagator(
     particle_def=pp.particle.MuMinusDef(),
     path_to_config_file=path_to_config_file
-)
-
-# max_distance, min_energy, hierarchy_condition
-propagate_settings = (1e20, 0, 10)  
-detector_pos = (0, 0, -1205e2)
-detector = pp.geometry.Cylinder(
-    pp.Cartesian3D(detector_pos),
-    inner_radius = 0,
-    radius = 1e20,
-    height = 1e2
 )
 
 init_state = pp.particle.ParticleState()
@@ -52,6 +63,8 @@ def pp_propagate(input):
     theta = input[1]
     phi = input[2]
     charge = input[3]
+    # current_muon = (f'{position}, (1, {phi}, {theta}), {energy_init*1000}MeV, {charge}\n')
+    # print(f'{current_muon}')
     # print(os.getcwd())
     # t1 = stopwatch(
     # title='inside propagation loop', time_unit='µs',
