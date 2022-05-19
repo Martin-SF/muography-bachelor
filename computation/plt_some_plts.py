@@ -24,9 +24,11 @@ counts_err = unumpy.uarray(counts, np.sqrt(counts))
 detektorrate = muon_rate*counts_err/STATISTICS
 
 plt.style.use('seaborn-whitegrid')
-plt.errorbar(
-    depth, unumpy.nominal_values(detektorrate), 
-    yerr=unumpy.std_devs(detektorrate), fmt='vr', label='simulation data')
+# plt.errorbar(
+#     depth, unumpy.nominal_values(detektorrate), 
+#     yerr=unumpy.std_devs(detektorrate), fmt='vr', label='simulation data')
+plt.scatter(
+    depth, unumpy.nominal_values(detektorrate), label='simulation data')
 #%
 # plt.plot(*depth(rate))
 # plt.plot(1000, 0, 'go', label='no water')

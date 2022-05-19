@@ -49,24 +49,29 @@ file_name = "EcoMug_gaisser_30deg_1e6_min7e2_max2e5.hdf"
 file_name = "EcoMug_gaisser_30deg_1e6_min6e2_max2e5.hdf"
 file_name = "EcoMug_gaisser_30deg_1e5_min6e2_max2e5.hdf"                
 file_name = "EcoMug_gaisser_30deg_1e7_min2e2_max2e5.hdf"
+file_name = "EcoMug_gaisser_30deg_1e7_min6e2_max2e5.hdf"
+file_name2 = 'results_v0.001_Highland__EcoMug_gaisser_30deg_1e7_min6e2_max2e5.hdf'
 
 
 
 (data_position, data_momentum, data_energy,
     data_theta, data_phi, data_charge) = slib.read_muon_data(
         hdf_folder+file_name, f'main')
-df = pd.read_hdf(hdf_folder+'results_'+file_name, key='main')
 
-counter = len(df['point1x'])
-start_points = np.zeros(shape=(counter, 3), dtype=FLOAT_TYPE)
-end_points = np.zeros(shape=(counter, 3), dtype=FLOAT_TYPE)
-start_end_points = np.zeros(shape=(counter*2, 3), dtype=FLOAT_TYPE)
+df = pd.read_hdf(hdf_folder+file_name2, key='main')
+# df = pd.read_hdf(hdf_folder+file_name, key='main')
 
-for i in range(counter):
-    start_points[i] = [df['point1x'][i], df['point1y'][i], df['point1z'][i]]
-    end_points[i] = [df['point2x'][i], df['point2y'][i], df['point2z'][i]]
-    start_end_points[i*2] = start_points[i]
-    start_end_points[i*2+1] = end_points[i]
+# counter = len(df['point1x'])
+# start_points = np.zeros(shape=(counter, 3), dtype=FLOAT_TYPE)
+# end_points = np.zeros(shape=(counter, 3), dtype=FLOAT_TYPE)
+# start_end_points = np.zeros(shape=(counter*2, 3), dtype=FLOAT_TYPE)
+
+# for i in range(counter):
+#     start_points[i] = [df['point1x'][i], df['point1y'][i], df['point1z'][i]]
+#     end_points[i] = [df['point2x'][i], df['point2y'][i], df['point2z'][i]]
+#     start_end_points[i*2] = start_points[i]
+#     start_end_points[i*2+1] = end_points[i]
+
 
 # energies_f = df['energies_f']
 # energies_i = df['energies_i'] 
@@ -99,7 +104,7 @@ plib.plot_hist(
     xlabel_unit = 'GeV',
     label=r'$E_i \;(h=0)$',
     xlog=True,
-    binsize=100,
+    binsize=70,
     show_and_nomultiplot=False,
     histtype='step'
 )
@@ -110,7 +115,7 @@ bins_energies_i = plib.plot_hist(
     xlabel_unit = 'GeV',
     label=r'$E_i \;(h=h_{\mathrm{det}})$',
     xlog=True,
-    binsize=100,
+    binsize=70,
     show_and_nomultiplot=False,
     histtype='step'
 )
@@ -122,7 +127,7 @@ plib.plot_hist(
     xlabel_unit = 'GeV',
     label=r'$E_f \;(h=h_{\mathrm{det}})$',
     xlog=True,
-    binsize=100,
+    binsize=70,
     histtype='step'
 )
 #%%
@@ -203,7 +208,7 @@ plib.plot_hist(
 ############################################################
 ############################################################
 ############################################################
-
+reload(plib)
 file_name = "EcoMug_gaisser_30deg_1e7_min5e2_max3e5.hdf"
 file_name = "EcoMug_gaisser_30deg_1e4_min5e2_max3e5.hdf"
 file_name = "EcoMug_gaisser_30deg_1e5_min5e2_max3e5.hdf"
@@ -223,10 +228,22 @@ STATISTICS = len(data_energy)
 
 t1 = stopwatch.stopwatch(title='full simulation: proposal init and simulation', time_unit='s')
 t1.task('plot EcoMug data')
-plib.plot_energy_std(
-    data_energy, binsize=50,
-    xlabel_unit='GeV', show=show_plots)
-
+# plib.plot_energy_std(
+#     data_energy, binsize=50,
+#     xlabel_unit='GeV', show=show_plots)
+plib.plot_hist(
+    data_energy, 
+    ylabel='# of muons',
+    x_label1=r'E',
+    xlabel_unit='GeV',
+    name='Ecomug_spektrum779',
+    label='',
+    xlog=True,
+    binsize=40,
+    show_and_nomultiplot=True,
+    savefig=True
+)
+# Ecomug_spektrum779
 t1.task('plot EcoMug data')
 
 # plib.plot_hist(
@@ -242,18 +259,18 @@ t1.task('plot EcoMug data')
 #     savefig=True,
 #     histtype='step'
 # )
-data = np.cos(data_theta)
-data = np.degrees(data_theta)
-plib.plot_hist(
-    data, 
-    ylabel='# of muons',
-    x_label1=r'\theta',
-    xlabel_unit='°',
-    name=f'theta-{file_name}',
-    label=r'$\theta < 30°$',
-    xlog=False,
-    binsize=50,
-    show_and_nomultiplot=True,
-    savefig=True,
-    histtype='step'
-)
+# data = np.cos(data_theta)
+# data = np.degrees(data_theta)
+# plib.plot_hist(
+#     data, 
+#     ylabel='# of muons',
+#     x_label1=r'\theta',
+#     xlabel_unit='°',
+#     name=f'theta-{file_name}',
+#     label=r'$\theta < 30°$',
+#     xlog=False,
+#     binsize=50,
+#     show_and_nomultiplot=True,
+#     savefig=True,
+#     histtype='step'
+# )
