@@ -109,15 +109,24 @@ PROPOSAL config = KH_840m.json | ppconfig = v0.01_Highland_
 dask tasks took   295.5 s
 (2026249.0+/-1423.5) of 1e+07 (20.26+/-0.01)% detector hits | min(E_i) at detector = 635.3 GeV
 
+
+
+
+
 EcoMug_gaisser_30deg_1e7_min6e2_max2e5.hdf | N_tasks = 23
 PROPOSAL config = KH_840m.json | ppconfig = v0.001_Highland_
 dask tasks took  2249.2 s
 (2038287.0+/-1427.7) of 1e+07 (20.38+/-0.01)% detector hits | min(E_i) at detector = 654.4 GeV
 
 EcoMug_gaisser_30deg_1e7_min6e2_max2e5.hdf | N_tasks = 23
+PROPOSAL config = KH_800m.json | ppconfig = v0.001_Highland_
+dask tasks took  2444.8 s
+(2051255.0+/-1432.2) of 1e+07 (20.51+/-0.01)% detector hits | min(E_i) at detector = 653.9 GeV
+
+EcoMug_gaisser_30deg_1e7_min6e2_max2e5.hdf | N_tasks = 23
 PROPOSAL config = KH_748m.json | ppconfig = v0.001_Highland_
-dask tasks took  2178.3 s
-(2080026.0+/-1442.2) of 1e+07 (20.80+/-0.01)% detector hits | min(E_i) at detector = 667.1 GeV
+dask tasks took  2352.0 s
+(2070024.0+/-1438.8) of 1e+07 (20.70+/-0.01)% detector hits | min(E_i) at detector = 651.2 GeV
 
 EcoMug_gaisser_30deg_1e7_min6e2_max2e5.hdf | N_tasks = 23
 PROPOSAL config = KH_700m.json | ppconfig = v0.001_Highland_
@@ -162,4 +171,5 @@ dask tasks took  2171.5 s
 EcoMug_gaisser_30deg_1e7_min6e2_max2e5.hdf | N_tasks = 23
 PROPOSAL config = kirchhellen1.json | ppconfig = v0.001_Highland_
 dask tasks took  2176.1 s
-(2344409.0+/-1531.1) of 1e+07 (23.44+/-0.02)% detector hits | min(E_i) at detector = 638.9 GeV
+
+2344400 +- 1500 of 1e+07 (23.44+/-0.02)% detector hits | min(E_i) at detector = 638.9 GeV

@@ -45,10 +45,11 @@ t3 = stopwatch.stopwatch(start=True, title='plotting of results')
 file_name = "EcoMug_gaisser_30deg_1e5_min2e2_max2e5.hdf"
 file_name = "EcoMug_gaisser_30deg_1e6_min2e2_max2e5.hdf"
 file_name = "EcoMug_gaisser_30deg_1e4_min7e2_max2e5.hdf"
-file_name = "EcoMug_gaisser_30deg_1e7_min2e2_max2e5.hdf"
 file_name = "EcoMug_gaisser_30deg_1e6_min7e2_max2e5.hdf"
 file_name = "EcoMug_gaisser_30deg_1e6_min6e2_max2e5.hdf"
 file_name = "EcoMug_gaisser_30deg_1e5_min6e2_max2e5.hdf"                
+file_name = "EcoMug_gaisser_30deg_1e7_min2e2_max2e5.hdf"
+
 
 
 (data_position, data_momentum, data_energy,

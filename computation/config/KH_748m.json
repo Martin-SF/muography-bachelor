@@ -219,7 +219,7 @@
 			"medium": "standardrock",
 			"geometries": [
 				{
-					"hierarchy": 2,
+					"hierarchy": 6,
 					"shape": "Cylinder",
 					"origin": [0, 0, -51501],
                     "inner_radius" : 0,

@@ -17,6 +17,7 @@ config = 'sandstein_det_genauer_Wasser.json'
 config = 'stdrock_perf_tests.json'
 config = 'stdrock_perf_tests2ndtiefe.json'
 config = 'kirchhellen1.json'
+config = 'KH_748m_alt.json'
 config = 'KH_800m.json'
 # print(f'config : {config}')
 path_to_config_file = "config/"+config

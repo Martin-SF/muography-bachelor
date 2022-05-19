@@ -49,11 +49,11 @@ file_name = "EcoMug_gaisser_30deg_1e7_min5e2_max2e5.hdf"
 file_name = "EcoMug_gaisser_30deg_1e6_min4e2_max2e5.hdf"
 
 file_name = "EcoMug_gaisser_30deg_1e2_min6e2_max2e5.hdf"
-file_name = "EcoMug_gaisser_30deg_1e4_min6e2_max2e5.hdf"
 file_name = "EcoMug_gaisser_30deg_23_min6e2_max2e5.hdf"
+
+file_name = "EcoMug_gaisser_30deg_1e4_min6e2_max2e5.hdf"
 file_name = "EcoMug_gaisser_30deg_1e5_min6e2_max2e5.hdf"
 file_name = "EcoMug_gaisser_30deg_1e6_min6e2_max2e5.hdf"
-
 file_name = "EcoMug_gaisser_30deg_1e7_min6e2_max2e5.hdf"
 vcut = ''
 vcut = 0.1
@@ -217,11 +217,11 @@ detector_size = (sizes1, sizes1, sizes1)
 # energies_i = df['energies_i'] 
 # distances = df['distances']
 
-# plib.plot_3D_start_end(
-#     start_end_points/100,
-#     elev=10, azim=70, alpha=0.3, dpi=1, show=show_plots,
-#     title=f'# of particles: {counter}'
-# )
+plib.plot_3D_start_end(
+    start_end_points/100,
+    elev=15, azim=70, alpha=0.14, dpi=1, show=show_plots,
+    title=f'# of particles: {counter}'
+)
 
 # plib.plot_3D_start_end(
 #     start_end_points, proper.detector_pos, detector_size,
