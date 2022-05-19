@@ -64,7 +64,7 @@ def plot_hist(array,
                 **kwargs):
     plt.xlabel(fr'${{{x_label1}}} \,/\, \mathrm{{{xlabel_unit}}}$')
     plt.ylabel(f"{ylabel}")
-    plt.title(name)
+    # plt.title(name)
     if (binsize != None):
         if (xlog):
             bins = np.geomspace(min(array), max(array), binsize)

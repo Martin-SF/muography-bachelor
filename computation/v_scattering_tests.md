@@ -171,5 +171,4 @@ dask tasks took  2171.5 s
 EcoMug_gaisser_30deg_1e7_min6e2_max2e5.hdf | N_tasks = 23
 PROPOSAL config = kirchhellen1.json | ppconfig = v0.001_Highland_
 dask tasks took  2176.1 s
-
-2344400 +- 1500 of 1e+07 (23.44+/-0.02)% detector hits | min(E_i) at detector = 638.9 GeV
+(2344409.0+/-1531.1) of 1e+07 (23.44+/-0.02)% detector hits | min(E_i) at detector = 638.9 GeV

@@ -27,7 +27,7 @@ dichte = list(dichte)
 gesteinstyp = loadtxt('data/gesteinstyp.txt', dtype='str')
 gesteinstyp = list(gesteinstyp)
 
-#%%
+#%
 fig = plt.figure(figsize=(8, 6))
 
 for i in range(13):
