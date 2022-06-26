@@ -1,0 +1,6 @@
+$cleanup_mode = 1;
+$out_dir = "build";
+$pdflatex = "/home/martin/.local/texlive/2021/bin/x86_64-linux/lualatex -interaction=nonstopmode -halt-on-error %O %S";
+$pdf_mode = 1;
+@default_files = ("thesis.tex");
+$clean_ext = "bbl run.xml"

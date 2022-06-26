@@ -1,0 +1,313 @@
+{
+    "files.autoSave": "off",
+    "latex-utilities.liveReformat.enabled": true,
+    "latex-workshop.synctex.afterBuild.enabled": false,
+    "latex-workshop.latex.outDir": "%DIR%/build",
+    "latex-workshop.latex.autoClean.run": "never",
+    "latex-workshop.latex.clean.fileTypes": [
+        "*.aux",
+        "*.bbl",
+        "*.blg",
+        "*.idx",
+        "*.ind",
+        "*.lof",
+        "*.lot",
+        "*.out",
+        "*.toc",
+        "*.acn",
+        "*.acr",
+        "*.alg",
+        "*.glg",
+        "*.glo",
+        "*.gls",
+        "*.fls",
+        "*.log",
+        "*.fdb_latexmk",
+        "*.snm",
+        "*.synctex(busy)",
+        "*.synctex.gz(busy)",
+        "*.nav",
+        "*.vrb",
+        "*.xml",
+        "*.bcf"
+    ],
+    "latex-workshop.latex.recipes": [
+        {
+            "name": "make fast",
+            "tools": [
+                "make fast"
+            ]
+        },
+        {
+            "name": "make full",
+            "tools": [
+                "make full"
+            ]
+        },
+        {
+            "name": "make fast2noethe",
+            "tools": [
+                "make fast2noethe"
+            ]
+        },
+        {
+            "name": "latexmk 🔃",
+            "tools": [
+                "latexmk"
+            ]
+        },
+    ],
+    "latex-workshop.latex.tools": [
+        {
+            "name": "make full",
+            "command": "make",
+            "args": [
+            ],
+            "env": {"PATH": "/home/martin/.local/texlive/2021/bin/x86_64-linux:/usr/bin"}
+        },
+        {
+            "name": "make fast",
+            "command": "make",
+            "args": [
+                "fast"
+            ],
+            "env": {"PATH": "/home/martin/.local/texlive/2021/bin/x86_64-linux:/usr/bin"}
+        },
+        {
+            "name": "make fast2noethe",
+            "command": "make",
+            "args": [
+                "fast2noethe"
+            ],
+            "env": {"PATH": "/home/martin/.local/texlive/2021/bin/x86_64-linux:/usr/bin"}
+        },
+        {
+            "name": "latexmknoethe_full",
+            "command": "latexmk",
+            "args": [
+                "-halt-on-error",
+                "-lualatex",
+                "-synctex=1",
+                "-interaction=nonstopmode",
+                "-outdir=%OUTDIR%",
+                "%DOC%"
+            ],
+            "env": {"PATH": "/home/martin/.local/texlive/2021/bin/x86_64-linux:/usr/bin"}
+        },
+        {
+            "name": "latexmk",
+            "command": "latexmk",
+            "args": [
+                "-synctex=1",
+                "-interaction=nonstopmode",
+                "-file-line-error",
+                "-pdf",
+                "-outdir=%OUTDIR%",
+                "%DOC%"
+            ],
+            "env": {"PATH": "/home/martin/.local/texlive/2021/bin/x86_64-linux:/usr/bin"}
+        },
+        {
+            "name": "lualatexmk",
+            "command": "latexmk",
+            "args": [
+                "-synctex=1",
+                "-interaction=nonstopmode",
+                "-file-line-error",
+                "-lualatex",
+                "-outdir=%OUTDIR%",
+                "%DOC%"
+            ],
+            "env": {"PATH": "/home/martin/.local/texlive/2021/bin/x86_64-linux:/usr/bin"}
+        },
+        {
+            "name": "xelatexmk",
+            "command": "latexmk",
+            "args": [
+                "-synctex=1",
+                "-interaction=nonstopmode",
+                "-file-line-error",
+                "-xelatex",
+                "-outdir=%OUTDIR%",
+                "%DOC%"
+            ],
+            "env": {"PATH": "/home/martin/.local/texlive/2021/bin/x86_64-linux:/usr/bin"}
+            
+        },
+        {
+            "name": "latexmk_rconly",
+            "command": "latexmk",
+            "args": [
+                "%DOC%"
+            ],
+            "env": {"PATH": "/home/martin/.local/texlive/2021/bin/x86_64-linux:/usr/bin"}
+            
+        },
+        {
+            "name": "pdflatex",
+            "command": "pdflatex",
+            "args": [
+                "-synctex=1",
+                "-interaction=nonstopmode",
+                "-file-line-error",
+                "%DOC%"
+            ],
+            "env": {"PATH": "/home/martin/.local/texlive/2021/bin/x86_64-linux:/usr/bin"}
+            
+        },
+        {
+            "name": "bibtex",
+            "command": "bibtex",
+            "args": [
+                "%DOCFILE%"
+            ],
+            "env": {"PATH": "/home/martin/.local/texlive/2021/bin/x86_64-linux:/usr/bin"}
+            
+        },
+        {
+            "name": "rnw2tex",
+            "command": "Rscript",
+            "args": [
+                "-e",
+                "knitr::opts_knit$set(concordance = TRUE); knitr::knit('%DOCFILE_EXT%')"
+            ],
+            "env": {"PATH": "/home/martin/.local/texlive/2021/bin/x86_64-linux:/usr/bin"}
+            
+        },
+        {
+            "name": "jnw2tex",
+            "command": "julia",
+            "args": [
+                "-e",
+                "using Weave; weave(\"%DOC_EXT%\", doctype=\"tex\")"
+            ],
+            "env": {"PATH": "/home/martin/.local/texlive/2021/bin/x86_64-linux:/usr/bin"}
+            
+        },
+        {
+            "name": "jnw2texmintex",
+            "command": "julia",
+            "args": [
+                "-e",
+                "using Weave; weave(\"%DOC_EXT%\", doctype=\"texminted\")"
+            ],
+            "env": {"PATH": "/home/martin/.local/texlive/2021/bin/x86_64-linux:/usr/bin"}
+            
+        },
+        {
+            "name": "tectonic",
+            "command": "tectonic",
+            "args": [
+                "--synctex",
+                "--keep-logs",
+                "%DOC%.tex"
+            ],
+            "env": {"PATH": "/home/martin/.local/texlive/2021/bin/x86_64-linux:/usr/bin"}
+        }
+    ],
+    "recipes-ablage": [
+        {
+            "name": "latexmk (latexmkrc)",
+            "tools": [
+                "latexmk_rconly"
+            ]
+        },
+        {
+            "name": "latexmk (lualatex)",
+            "tools": [
+                "lualatexmk"
+            ]
+        },
+        {
+            "name": "latexmk (xelatex)",
+            "tools": [
+                "xelatexmk"
+            ]
+        },
+        {
+            "name": "pdflatex ➞ bibtex ➞ pdflatex × 2",
+            "tools": [
+                "pdflatex",
+                "bibtex",
+                "pdflatex",
+                "pdflatex"
+            ]
+        },
+        {
+            "name": "Compile Rnw files",
+            "tools": [
+                "rnw2tex",
+                "latexmk"
+            ]
+        },
+        {
+            "name": "Compile Jnw files",
+            "tools": [
+                "jnw2tex",
+                "latexmk"
+            ]
+        },
+        {
+            "name": "tectonic",
+            "tools": [
+                "tectonic"
+            ]
+        }
+    
+    ],
+    "cSpell.words": [
+        "Abwiegung",
+        "Aufzugsschachtes",
+        "charmhaltigen",
+        "Detektorebene",
+        "Detektorsystem",
+        "eindimensonal",
+        "enstehenden",
+        "Fermionen",
+        "GEANT",
+        "Hadronen",
+        "instantan",
+        "Interaktionsarten",
+        "Kaonen",
+        "Mesonen",
+        "Molière",
+        "Myographie",
+        "Myonen",
+        "Myonenenergie",
+        "Myonenfluss",
+        "Myonenflusses",
+        "Myonenspuren",
+        "Paarproduktion",
+        "phobos",
+        "Photonukleare",
+        "Pionen",
+        "Präzison",
+        "Propagationschritts",
+        "Prozentbereiche",
+        "Spektralindex",
+        "stoastisch",
+        "Stochastizität",
+        "unteranderem"
+    ],
+    "latex-workshop.latex.recipe.default": "make fast",
+    "cSpell.ignoreWords": [
+        "Bremsstrahlungs",
+        "Detekoren",
+        "Einordung",
+        "FIAN-SINP",
+        "Interpolationstabllen",
+        "Xeon",
+        "eptons",
+        "gemessens",
+        "intensität",
+        "myographie",
+        "myon",
+        "opagator",
+        "ptimal",
+        "ptimized",
+        "recision",
+        "strahlungsquelle",
+        "tomographie",
+        "unterscheidung"
+    ],
+}

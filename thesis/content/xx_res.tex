@@ -1,0 +1,44 @@
+\chapter{Ergebnisse}
+
+\section*{Myonen erzeugen}
+
+
+
+
+
+% optimierungen
+
+% Energy cut von Ecomug wählen
+% teste Energy cut 200GeV bis 200TeV
+% stochastische myonen unter 956 GeV:
+% \begin{equation}
+%     0.17 \%
+% \end{equation}
+
+
+\begin{table}[h]
+    \centering\begin{tabular}{c c c}
+        Wassertiefe & angekommene Teilchen &  am Detektor \\
+        0m & (2344409.0\pm1531.1) & (23.44\pm0.02)  \\
+        100m & (2303835.0\pm1517.8) & (23.04\pm0.02)  \\
+        840m & (2038287.0\pm1427.7)  & (20.38\pm0.01)  \\
+    \end{tabular}
+    \caption{10 Mio. Myonen}
+    \label{tab}
+\end{table}
+
+
+% EcoMug_gaisser_30deg_1e7_min6e2_max2e5.hdf | N_tasks = 23
+% PROPOSAL config = KH_840m.json | ppconfig = v0.001_Highland_
+% dask tasks took  2249.2 s
+% (2038287.0\pm1427.7) of 1e+07 (20.38\pm0.01)% detector hits | min(E_i) at detector = 654.4 GeV
+
+% EcoMug_gaisser_30deg_1e7_min6e2_max2e5.hdf | N_tasks = 23
+% PROPOSAL config = KH_100m.json | ppconfig = v0.001_Highland_
+% dask tasks took  2171.5 s
+% (2303835.0\pm1517.8) of 1e+07 (23.04\pm0.02)% detector hits | min(E_i) at detector = 637.6 GeV
+
+% EcoMug_gaisser_30deg_1e7_min6e2_max2e5.hdf | N_tasks = 23
+% PROPOSAL config = kirchhellen1.json | ppconfig = v0.001_Highland_
+% dask tasks took  2176.1 s
+% (2344409.0\pm1531.1) of 1e+07 (23.44\pm0.02)% detector hits | min(E_i) at detector = 638.9 GeV
