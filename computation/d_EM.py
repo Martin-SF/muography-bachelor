@@ -1,47 +1,32 @@
 # %%
 import os, sys
-# os.environ['LD_LIBRARY_PATH'] = '/home/mschoenfeld/envs/env_3.9/lib:'
-# sys.path.append('/home/mschoenfeld/pkgs/python-3.9.7-h12debd9_1/lib')
-# os.chdir(os.path.dirname(__file__))
-# print(os.environ['LD_LIBRARY_PATH'])
-# print(os.environ['PATH'])
-# print(os.environ['PYTHONPATH'])
-# sys.path.append('/home/mschoenfeld/envs/env_3.10/lib')
 import numpy as np
-
 import matplotlib.pyplot as plt
 from tqdm import tqdm
 import pandas as pd
 import proposal as pp
-
-# from EcoMug_pybind11.build import EcoMug
-# from numba import vectorize, jit, njit, prange
+from importlib import reload
 
 import py_library.my_plots_library as plib
 import py_library.stopwatch as stopwatch
 import py_library.simulate_lib as slib
-from importlib import reload
 
-from distributed import Client, LocalCluster, as_completed
-import dask.array as da
-from dask import delayed
-import dask.bag as db
+from distributed import Client, LocalCluster
+# import dask.bag as db
 import dask.dataframe as dd
-client = Client("localhost:8786") # phobos
-# client = Client("tcp://129.217.166.201:8786")
-# client = Client("tcp://172.17.79.204:8786")
+client = Client("localhost:8786")  # local client
 
 # hdf_folder = 'data_hdf/'
 hdf_folder = '/scratch/mschoenfeld/data_hdf/'
+# local variable!!!
 
 #%
-# GERERATING full spectra muons ECOMUG
+# generating Muons with Ecomug into HDF
 ############################################################
 ############################################################
 ############################################################
 t = stopwatch.stopwatch(title='generating ecomug muons', selfexecutiontime_micros=0, time_unit='s', return_results=True)
 import d_EM_lib as emo
-#%
 client.upload_file('d_EM_lib.py')
 reload(emo)
 reload(slib)
@@ -56,7 +41,8 @@ STATISTICS = int(float(emo.size)) # 1e7:4.5min; 1e6:27s; 2e5:5,4s; 1e4: 0,3s
 N_tasks = 23
 chunksize = round((STATISTICS/N_tasks))+1
 
-tmphdf = '/tmp/tmp.hdf'
+# local variable!!!
+tmphdf = hdf_folder+'tmp.hdf'
 df = pd.DataFrame()
 df['0'] = np.zeros(STATISTICS)
 df.to_hdf(tmphdf, key=f'main', format='table')
@@ -68,9 +54,9 @@ b = b.map(emo.Ecomug_generate)
 b = b.to_dataframe()
 t.task('dask compute', True)
 results = client.compute(b, pure=False).result()
+os.remove(tmphdf)
 
 t.task('post calculations')
-#%
 results_array = np.array(results)
 muon_pos = np.zeros(shape=(STATISTICS, 3))
 # muon_pos = np.array(list(results_array[:, 0]))

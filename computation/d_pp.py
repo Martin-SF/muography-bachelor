@@ -25,46 +25,41 @@ plt.rcParams.update({'figure.dpi':70})
 # os.chdir(os.path.dirname(__file__))  # wichtig wenn nicht über ipython ausgeführt
 client = Client("localhost:8786") # phobos
 FLOAT_TYPE = np.float64
-{
-'''
-1e7
-workers:
-2400 KilledWorker: ('finalize-6d57127f026613e3fce3aa1731d26349', <WorkerState 'tcp://127.0.0.1:43417', status: closed, memory: 0, processing: 1>) 
-240 
-24 2 worker sind abgeschmiert aber es lief durch 
-'''
-}
+
 show_plots = True
 print_results = False
 silent = True
 # hdf_folder = 'data_hdf/'
 hdf_folder = '/scratch/mschoenfeld/data_hdf/'
 
+
 file_name = "EcoMug_gaisser_30deg_1e7_min2e2_max2e5.hdf"
-
-
-file_name = "EcoMug_gaisser_30deg_3e7_min5e2_max2e5.hdf" # 1517.6 s
-file_name = "EcoMug_gaisser_30deg_1e7_min5e2_max2e5.hdf"
 
 file_name = "EcoMug_gaisser_30deg_1e6_min4e2_max2e5.hdf"
 
-file_name = "EcoMug_gaisser_30deg_1e2_min6e2_max2e5.hdf"
-file_name = "EcoMug_gaisser_30deg_23_min6e2_max2e5.hdf"
+file_name = "EcoMug_gaisser_30deg_1e7_min5e2_max2e5.hdf"
+file_name = "EcoMug_gaisser_30deg_3e7_min5e2_max2e5.hdf" # 1517.6 s
 
+file_name = "EcoMug_gaisser_30deg_1e2_min6e2_max2e5.hdf"
 file_name = "EcoMug_gaisser_30deg_1e4_min6e2_max2e5.hdf"
 file_name = "EcoMug_gaisser_30deg_1e5_min6e2_max2e5.hdf"
 file_name = "EcoMug_gaisser_30deg_1e6_min6e2_max2e5.hdf"
 file_name = "EcoMug_gaisser_30deg_1e7_min6e2_max2e5.hdf"
+
+file_name = "EcoMug_gaisser_30deg_23_min6e2_max2e5.hdf"
+
 vcut = ''
 vcut = 0.1
 vcut = 1
 vcut = 0.0008
 vcut = 0.01
 vcut = 0.001
+
 multiple_scattering = 'noscattering'
 multiple_scattering = 'HighlandIntegral'
 multiple_scattering = 'Moliere'
 multiple_scattering = 'Highland'
+
 N_tasks = 100
 N_tasks = 24
 N_tasks = 48
@@ -181,15 +176,14 @@ df['point1z'] = start_points[:, 2]
 df['point2x'] = end_points[:, 0]
 df['point2y'] = end_points[:, 1]
 df['point2z'] = end_points[:, 2]
-
-t2.task('3')
+#%%
 t2.task('write to HDF file')
 file_name_results = f'results_{pp_config}_{file_name}'
 df.to_hdf(hdf_folder+file_name_results, key=f'main', format='table')
-counter_u = ufloat(counter, np.sqrt(counter))
-t2.task('4')
-s1 = f'({counter_u:.1f}) of {STATISTICS:.0e} ({counter_u/STATISTICS*100:.4})% detector hits'
-# s1 = f'{counter} of {STATISTICS:.0e} %) detector hits'
+
+s1 = f'({counter:.1f}) of {STATISTICS:.0e} ({counter/STATISTICS*100:.4})% detector hits'
+# counter_u = ufloat(counter, np.sqrt(counter))
+# s1 = f'({counter_u:.1f}) of {STATISTICS:.0e} ({counter_u/STATISTICS*100:.4})% detector hits'
 s2 = f'min(E_i) at detector = {min(energies_i)/1000:.1f} GeV'
 print(f'{s1} | {s2}')
 
