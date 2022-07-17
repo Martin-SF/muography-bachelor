@@ -51,20 +51,21 @@ def plot_distances_std(distances_array, binsize = 20,
 
 # versatile histogram plotting function
 def plot_hist(array,
-                ylabel = '# of muons',
-                x_label1 = 'physical property', 
-                xlabel_unit = 'unit', 
+                ylabel = '# of particles',
+                xlabel1 = 'physical property', 
+                xlabel2 = 'unit', 
                 name='plot_hist_log',
-                label=None,
                 xlog=False, 
+                label=None,
                 binsize=None,
-                show_and_nomultiplot=True, 
+                show_or_multiplot='show', 
                 savefig=True,
                 return_bin=False,
                 **kwargs):
-    plt.xlabel(fr'${{{x_label1}}} \,/\, \mathrm{{{xlabel_unit}}}$')
+    plt.xlabel(fr'${{{xlabel1}}} \,/\, \mathrm{{{xlabel2}}}$')
     plt.ylabel(f"{ylabel}")
-    # plt.title(name)
+    if (name!='plot_hist_log'):
+        plt.title(name)
     if (binsize != None):
         if (xlog):
             bins = np.geomspace(min(array), max(array), binsize)
@@ -78,12 +79,13 @@ def plot_hist(array,
 
     if (xlog):
         plt.xscale('log')
-    
+    if (label==None):
+        label=f'{len(array):.0e} particles'
     bins_output = plt.hist(array, bins=bins, log=xlog, label=label, **kwargs)
     plt.legend()
-    if (savefig and (show_and_nomultiplot)):
+    if (savefig and (show_or_multiplot=='show')):
         plt.savefig(f'figures/{name}.pdf', bbox_inches="tight")
-    if (show_and_nomultiplot):
+    if (show_or_multiplot=='show'):
         plt.show()
     if return_bin==True:
         return bins_output

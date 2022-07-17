@@ -1,5 +1,6 @@
 # %%
 import os, sys
+os.chdir(os.path.dirname(__file__))
 import numpy as np
 import matplotlib.pyplot as plt
 from tqdm import tqdm
@@ -8,17 +9,15 @@ import proposal as pp
 from importlib import reload
 
 import py_library.my_plots_library as plib
-import py_library.stopwatch as stopwatch
 import py_library.simulate_lib as slib
+import py_library.stopwatch as stopwatch
+import config as config_file
 
 from distributed import Client, LocalCluster
 # import dask.bag as db
 import dask.dataframe as dd
 client = Client("localhost:8786")  # local client
 
-# hdf_folder = 'data_hdf/'
-hdf_folder = '/scratch/mschoenfeld/data_hdf/'
-# local variable!!!
 
 #%
 # generating Muons with Ecomug into HDF
@@ -28,23 +27,22 @@ hdf_folder = '/scratch/mschoenfeld/data_hdf/'
 t = stopwatch.stopwatch(title='generating ecomug muons', selfexecutiontime_micros=0, time_unit='s', return_results=True)
 import d_EM_lib as emo
 client.upload_file('d_EM_lib.py')
+client.upload_file('config.py')
 reload(emo)
 reload(slib)
 reload(plib)
 reload(stopwatch)
+reload(config_file)
 
-# file_name = f'Em_{param}_{angle}_{size}_xmom{max_mom}.hdf'
-file_name = emo.file_name
-print(f'{file_name}')
-STATISTICS = int(float(emo.size)) # 1e7:4.5min; 1e6:27s; 2e5:5,4s; 1e4: 0,3s
-
-N_tasks = 23
-chunksize = round((STATISTICS/N_tasks))+1
+print(f'generating {config_file.file_name}')
+N_tasks = config_file.N_tasks
+chunksize = round((config_file.STATISTICS/N_tasks))+1
 
 # local variable!!!
-tmphdf = hdf_folder+'tmp.hdf'
+# workaround für viele tasks 
+tmphdf = config_file.hdf_folder+'tmp.hdf'
 df = pd.DataFrame()
-df['0'] = np.zeros(STATISTICS)
+df['0'] = np.zeros(config_file.STATISTICS)
 df.to_hdf(tmphdf, key=f'main', format='table')
 
 ddf = dd.read_hdf(tmphdf, key='main', columns=['0'], chunksize=chunksize)
@@ -52,13 +50,13 @@ b = ddf.to_bag()
 # b = db.from_sequence(map(bool, arr), partition_size=chunksize)  # 1/2 slowdown
 b = b.map(emo.Ecomug_generate)
 b = b.to_dataframe()
-t.task('dask compute', True)
+t.task('calculate muons with EcoMug', True)
 results = client.compute(b, pure=False).result()
 os.remove(tmphdf)
 
 t.task('post calculations')
 results_array = np.array(results)
-muon_pos = np.zeros(shape=(STATISTICS, 3))
+muon_pos = np.zeros(shape=(config_file.STATISTICS, 3))
 # muon_pos = np.array(list(results_array[:, 0]))
 muon_p = np.array(results_array[:, 1], dtype=float)
 muon_theta = np.array(results_array[:, 2], dtype=float)
@@ -77,49 +75,67 @@ df['theta'] = muon_theta
 df['phi'] = muon_phi
 df['charge'] = muon_charge
 t.task('write to HDF')
-df.to_hdf(hdf_folder+file_name, key=f'main', format='table')
+df.to_hdf(config_file.hdf_folder+config_file.file_name, key=f'main', format='table')
 
 elapsed_time_total = t.stop(True)['TOTAL']
-# muonen_1e7_time = ( (elapsed_time_total/STATISTICS)*int(1e7))/(60*60)
+# muonen_1e7_time = ( (elapsed_time_total/config_file.STATISTICS)*int(1e7))/(60*60)
 # print(f'bei aktuellem xmom würden 1e7 muonen {muonen_1e7_time:2.1f} Stunden dauern')
-print(f'it took {elapsed_time_total/(60):2.1f} min to complete')
+print(f'Total time: {elapsed_time_total/(60):2.1f} min')
 
-# quit()
+quit()
 #%%
 #######################
 reload(plib)
-plib.plot_energy_std(
-    muon_e, binsize=50,
-    xlabel_unit='GeV', show=True,
-        name='1e7 muons')
 
+plib.plot_hist(
+    muon_e, 
+    name='EcoMug: energy distribution',
+    ylabel = '# of muons',
+    xlabel1 = '',
+    xlabel2 = 'GeV',
+    xlog=True,
+    binsize=50,
+    show_or_multiplot=config_file.show_or_multiplot,
+    savefig=False
+)
+
+#%%
+energy_threshold = 600  # GeV
 a = []
 t.task('plot data')
 for i in muon_e:
-    if (i>800):
+    if (i>energy_threshold):
         a.append(i)
 
 len_a = len(a)
-print(f'myonen mit mehr als 1000 GeV = {len_a} ({len_a/STATISTICS*100:.2f}%)')
+print(f'myonen mit mehr als {energy_threshold} GeV = {len_a} ({len_a/config_file.STATISTICS*100:.2f}%)')
 if len_a > 100:
-    plib.plot_energy_std(
-        a, binsize=50,
-        xlabel_unit='GeV', show=True)
+    plib.plot_hist(
+        a, 
+        name=f'EcoMug: energy distribution of E>{energy_threshold} GeV',
+        xlabel1 = 'E',
+        xlabel2 = 'GeV',
+        show_or_multiplot=config_file.show_or_multiplot,
+        xlog=True
+    )
+
 
 #%%
-file_name = 'Em_gaisser_30deg_1e5_xmom4e5.hdf'
-(data_position, data_momentum, data_energy,
-    data_theta, data_phi, data_charge) = slib.read_muon_data(
-        hdf_folder+file_name, f'main')
+reload(plib)
+# config_file.file_name = 'Em_gaisser_30deg_1e5_xmom4e5.hdf'
+# (data_position, data_momentum, data_energy,
+#     data_theta, data_phi, data_charge) = slib.read_muon_data(
+#         config_file.hdf_folder+config_file.file_name, f'main')
+
 plib.plot_hist(
-    np.degrees(data_theta), 
+    np.degrees(muon_theta), 
+    name='EcoMug: theta distribution',
     ylabel = '# of muons',
-    x_label1 = '\theta',
-    xlabel_unit = '°',
+    xlabel1 = r'\theta',
+    xlabel2 = '°',
     label=r'$\theta \;\;all$',
     xlog=False,
     binsize=50,
-    show_or_multiplot=False,
-    savefig=False,
-    histtype='step'
+    show_or_multiplot=config_file.show_or_multiplot,
+    savefig=True
 )

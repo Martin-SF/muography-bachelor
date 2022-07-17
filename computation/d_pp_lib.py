@@ -6,33 +6,16 @@ import py_library.my_plots_library as plib
 import py_library.stopwatch as stopwatch
 import py_library.simulate_lib as slib
 import os, sys
+import config as config_file
+from importlib import reload
+
+reload(config_file)
 # os.chdir(os.path.dirname(__file__))
 
-config = "config_cylinder-huge.json"
-config = 'sandstein.json'
-config = 'sandstein_det.json'
-config = 'sandstein_det_genauer_100m_h20.json'
-config = 'sandstein_det_genauer.json'
-config = 'sandstein_det_genauer_Wasser.json'
-config = 'stdrock_perf_tests.json'
-config = 'stdrock_perf_tests2ndtiefe.json'
-config = 'kirchhellen1.json'
-config = 'KH_748m_alt.json'
-config = 'KH_800m.json'
-# print(f'config : {config}')
-path_to_config_file = "config/"+config
-
-# max_distance, min_energy, hierarchy_condition
-propagate_settings = (1e20, 0, 10)  
-# da nur z abgefragt wird, ist das nicht der detector 
-# detector_pos = (0, 0, -1205e2)  #old
-detector_pos = (0, 0, -1259e2)
-# if config == 'kirchhellen1.json':
-# else:
-#     detector_pos = (0, 0, -1204.5e2)
+# print(f'PP_config : {config_file.PP_config}')
 
 detector = pp.geometry.Cylinder(
-    pp.Cartesian3D(detector_pos),
+    pp.Cartesian3D(config_file.detector_pos),
     inner_radius = 0,
     radius = 1e20,
     height = 1e2
@@ -40,17 +23,16 @@ detector = pp.geometry.Cylinder(
 
 pp.RandomGenerator.get().set_seed(int(np.random.random()*10000))
 pp.InterpolationSettings.nodes_utility = 1000
-# pp.InterpolationSettings.tables_path = "/tmp"
-pp.InterpolationSettings.tables_path = "/scratch/mschoenfeld/tables_path"
+pp.InterpolationSettings.tables_path = config_file.pp_tables_path
 
 prop_plus = pp.Propagator(
     particle_def=pp.particle.MuPlusDef(),
-    path_to_config_file=path_to_config_file
+    path_to_config_file=config_file.path_to_config_file
 )
 
 prop_minus = pp.Propagator(
     particle_def=pp.particle.MuMinusDef(),
-    path_to_config_file=path_to_config_file
+    path_to_config_file=config_file.path_to_config_file
 )
 
 init_state = pp.particle.ParticleState()
@@ -81,10 +63,10 @@ def pp_propagate(input):
     try:
         if (charge == 1):
             track = prop_plus.propagate(
-                init_state, *propagate_settings)
+                init_state, *config_file.propagate_settings)
         else:
             track = prop_minus.propagate(
-                init_state, *propagate_settings)
+                init_state, *config_file.propagate_settings)
     except Exception as e:
         print(e)
         traceback.print_exc()
@@ -96,7 +78,7 @@ def pp_propagate(input):
     # t1.task('did geometry hit?')  # 4% of loop time
     # if (track.hit_geometry(detector) or False):
     point2 = plib.pp_get_pos(track.track()[-1].position)
-    if (point2[2] <= detector_pos[2]):
+    if (point2[2] <= config_file.detector_pos[2]):
         hit_detector = True
         # t1.task('write propagate array and write to array')  # 14% loop time
         distance_at_track_end = track.track_propagated_distances()[-1]

@@ -41,7 +41,7 @@ for i in range(13):
 plt.xlabel(r'Tiefe / $\mathrm{m}$')
 plt.ylabel(r'Dichte / $g / cm^3$')
 
-# plt.xlabel(fr'propagated distance $\,/\, \mathrm{{{xlabel_unit}}} $')
+# plt.xlabel(fr'propagated distance $\,/\, \mathrm{{{xlabel2}}} $')
 # plt.axis([0, 1204, 0, ])
 
 # plt.xlim(390,540)

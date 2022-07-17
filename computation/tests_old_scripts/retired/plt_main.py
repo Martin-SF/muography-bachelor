@@ -9,10 +9,13 @@ plt.rcParams.update({'figure.dpi':70})
 from tqdm import tqdm
 import pandas as pd
 import os
+import config as config_file
+from importlib import reload
+
+reload(config_file)
 os.chdir(os.path.dirname(__file__))
 # from scipy.stats import norm
 # import proposal as pp
-from EcoMug_pybind11.build import EcoMug
 # from numba import vectorize
 # from numba import jit, njit, prange
 import py_library.my_plots_library as plib
@@ -35,31 +38,30 @@ FLOAT_TYPE = np.float64
 # # plt.plot(x, f(np.log(x)))
 # plt.plot(x, 1/x, scalex=100000)
 
-hdf_folder = '/scratch/mschoenfeld/data_hdf/'
 
 # %%
 # proposal plots
 t3 = stopwatch.stopwatch(start=True, title='plotting of results')
 
 
-file_name = "EcoMug_gaisser_30deg_1e5_min2e2_max2e5.hdf"
-file_name = "EcoMug_gaisser_30deg_1e6_min2e2_max2e5.hdf"
-file_name = "EcoMug_gaisser_30deg_1e4_min7e2_max2e5.hdf"
-file_name = "EcoMug_gaisser_30deg_1e6_min7e2_max2e5.hdf"
-file_name = "EcoMug_gaisser_30deg_1e6_min6e2_max2e5.hdf"
-file_name = "EcoMug_gaisser_30deg_1e5_min6e2_max2e5.hdf"                
-file_name = "EcoMug_gaisser_30deg_1e7_min2e2_max2e5.hdf"
-file_name = "EcoMug_gaisser_30deg_1e7_min6e2_max2e5.hdf"
-file_name2 = 'results_v0.001_Highland__EcoMug_gaisser_30deg_1e7_min6e2_max2e5.hdf'
+# file_name = "EcoMug_gaisser_30deg_1e5_min2e2_max2e5.hdf"
+# file_name = "EcoMug_gaisser_30deg_1e6_min2e2_max2e5.hdf"
+# file_name = "EcoMug_gaisser_30deg_1e4_min7e2_max2e5.hdf"
+# file_name = "EcoMug_gaisser_30deg_1e6_min7e2_max2e5.hdf"
+# file_name = "EcoMug_gaisser_30deg_1e6_min6e2_max2e5.hdf"
+# file_name = "EcoMug_gaisser_30deg_1e5_min6e2_max2e5.hdf"
+# file_name = "EcoMug_gaisser_30deg_1e7_min2e2_max2e5.hdf"
+# file_name = "EcoMug_gaisser_30deg_1e7_min6e2_max2e5.hdf"
 
+# file_name = "EcoMug_1e4_gaisser_min6e2_max2e5_30deg.hdf"
 
 
 (data_position, data_momentum, data_energy,
     data_theta, data_phi, data_charge) = slib.read_muon_data(
-        hdf_folder+file_name, f'main')
+        config_file.hdf_folder+config_file.file_name, f'main')
 
-df = pd.read_hdf(hdf_folder+file_name2, key='main')
-# df = pd.read_hdf(hdf_folder+file_name, key='main')
+df = pd.read_hdf(config_file.hdf_folder+config_file.file_name_results, key='main')
+# df = pd.read_hdf(config_file.hdf_folder+config_file.file_name, key='main')
 
 # counter = len(df['point1x'])
 # start_points = np.zeros(shape=(counter, 3), dtype=FLOAT_TYPE)
@@ -85,57 +87,59 @@ plib.plot_3D_start_end(
 )
 # t3.task('distances plot')
 # plib.plot_distances_std(
-#     distances/100, 100, xlabel_unit='m', show=show_plots
+#     distances/100, 100, xlabel2='m', show=show_plots
 # )
 # t3.task('energy plot')
 # plib.plot_energy_std(
-#     energies_f/1000, binsize=100, xlabel_unit='GeV', show=show_plots, name='E_f at detector'
+#     energies_f/1000, binsize=100, xlabel2='GeV', show=show_plots, name='E_f at detector'
 # )
 
 # # t3.task('energy plot2')
 # plib.plot_energy_std(
-#     energies_i/1000, binsize=100, xlabel_unit='GeV', show=show_plots, name='E_i at Detector'
+#     energies_i/1000, binsize=100, xlabel2='GeV', show=show_plots, name='E_i at Detector'
 # )
 #%%
 plib.plot_hist(
     data_energy, 
     ylabel = '# of muons',
-    x_label1 = 'E',
-    xlabel_unit = 'GeV',
+    xlabel1 = 'E',
+    xlabel2 = 'GeV',
     label=r'$E_i \;(h=0)$',
     xlog=True,
     binsize=70,
-    show_and_nomultiplot=False,
+    show_or_multiplot='multi',
     histtype='step'
 )
 bins_energies_i = plib.plot_hist(
     df['energies_i']/1000, 
     ylabel = '# of muons',
-    x_label1 = 'E',
-    xlabel_unit = 'GeV',
+    xlabel1 = 'E',
+    xlabel2 = 'GeV',
     label=r'$E_i \;(h=h_{\mathrm{det}})$',
     xlog=True,
     binsize=70,
-    show_and_nomultiplot=False,
+    show_or_multiplot='multi',
     histtype='step'
 )
 plib.plot_hist(
     df['energies_f']/1000, 
-    name=f'{file_name}_v=1',
+    name=f'{config_file.file_name}_3hist',
     ylabel = '# of muons',
-    x_label1 = 'E',
-    xlabel_unit = 'GeV',
+    xlabel1 = 'E',
+    xlabel2 = 'GeV',
     label=r'$E_f \;(h=h_{\mathrm{det}})$',
+    show_or_multiplot='show',
     xlog=True,
     binsize=70,
+    savefig=True
     histtype='step'
 )
 #%%
 plib.plot_hist(
     df['point2z']/100*(-1),
     ylabel = '# of muons',
-    x_label1 = 'd',
-    xlabel_unit = 'm',
+    xlabel1 = 'd',
+    xlabel2 = 'm',
     label=r'$muons$',
     name='z-coordinate of muons at detector',
     xlog=True,
@@ -147,8 +151,8 @@ plib.plot_hist(
     df['distances']/100/1000, 
     name='total distance of muons at detector',
     ylabel = '# of muons',
-    x_label1 = 'd',
-    xlabel_unit = 'km',
+    xlabel1 = 'd',
+    xlabel2 = 'km',
     label=r'$muons$',
     binsize=80,
     histtype='bar'
@@ -170,12 +174,12 @@ t3.stop(silent)
 file_name = 'EcoMug_std_full_1e4_xmom1e6.hdf'
 (data_position, data_momentum, data_energy,
     data_theta, data_phi, data_charge) = slib.read_muon_data(
-        hdf_folder+file_name, f'main')
+        config_file.hdf_folder+file_name, f'main')
 plib.plot_hist(
     np.degrees(data_theta), 
     ylabel = '# of muons',
-    x_label1 = '\theta',
-    xlabel_unit = '°',
+    xlabel1 = '\theta',
+    xlabel2 = '°',
     label=r'$\theta \;\;all$',
     xlog=False,
     binsize=30,
@@ -188,12 +192,12 @@ plib.plot_hist(
 file_name = 'EcoMug_std_30deg_1e4_xmom1e6.hdf'
 (data_position, data_momentum, data_energy,
     data_theta, data_phi, data_charge) = slib.read_muon_data(
-        hdf_folder+file_name, f'main')
+        config_file.hdf_folder+file_name, f'main')
 plib.plot_hist(
     np.degrees(data_theta), 
     ylabel='# of muons',
-    x_label1=r'\theta',
-    xlabel_unit='°',
+    xlabel1=r'\theta',
+    xlabel2='°',
     name='',
     label=r'$\theta < 30°$',
     xlog=False,
@@ -222,7 +226,7 @@ file_name = "EcoMug_gaisser_30deg_1e7_min2e2_max2e5.hdf"
 print(f'{file_name}')
 (data_position, data_momentum, data_energy,
     data_theta, data_phi, data_charge) = slib.read_muon_data(
-        hdf_folder+file_name, f'main')
+        config_file.hdf_folder+file_name, f'main')
 STATISTICS = len(data_energy)
 
 
@@ -230,12 +234,12 @@ t1 = stopwatch.stopwatch(title='full simulation: proposal init and simulation', 
 t1.task('plot EcoMug data')
 # plib.plot_energy_std(
 #     data_energy, binsize=50,
-#     xlabel_unit='GeV', show=show_plots)
+#     xlabel2='GeV', show=show_plots)
 plib.plot_hist(
     data_energy, 
     ylabel='# of muons',
-    x_label1=r'E',
-    xlabel_unit='GeV',
+    xlabel1=r'E',
+    xlabel2='GeV',
     name='Ecomug_spektrum779',
     label='',
     xlog=True,
@@ -249,8 +253,8 @@ t1.task('plot EcoMug data')
 # plib.plot_hist(
 #     np.degrees(data_phi), 
 #     ylabel='# of muons',
-#     x_label1=r'\theta',
-#     xlabel_unit='°',
+#     xlabel1=r'\theta',
+#     xlabel2='°',
 #     name='',
 #     label=r'$\theta < 30°$',
 #     xlog=False,
@@ -264,8 +268,8 @@ t1.task('plot EcoMug data')
 # plib.plot_hist(
 #     data, 
 #     ylabel='# of muons',
-#     x_label1=r'\theta',
-#     xlabel_unit='°',
+#     xlabel1=r'\theta',
+#     xlabel2='°',
 #     name=f'theta-{file_name}',
 #     label=r'$\theta < 30°$',
 #     xlog=False,
