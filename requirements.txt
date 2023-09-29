@@ -1,0 +1,13 @@
+pandas
+matplotlib
+numba
+distributed
+tqdm
+scipy
+uncertainties
+prettytable
+proposal
+tables
+bokeh
+jupyter
+jupyter-server-proxy

@@ -23,7 +23,7 @@ max_theta = '30'  # bachelor thesis results value
 
 # amount of muons generated
 # 1e7:4.5min; 1e6:27s; 2e5:5,4s; 1e4: 0,3s
-STATISTICS = '2e7'  # bachelor thesis results value
+STATISTICS = '1e7'  # bachelor thesis results value
 STATISTICS = '1e6'
 STATISTICS = '1e5'
 STATISTICS = '1e4'
