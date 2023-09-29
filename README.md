@@ -31,6 +31,7 @@ Here are instructions to reproduce my bachelor thesis simulation
 
 ### Variables (configure for YOUR system)
 `conda env config vars set PYTHONPATH="$HOME/muography-bachelor/computation/EcoMug_pybind11/build:$PYTHONPATH"`
+
 `conda env config vars set PYTHONPATH="$HOME/muography-bachelor/computation:$PYTHONPATH"`
 
 (probably not needed!) `conda env config vars set LD_LIBRARY_PATH="$HOME/.local/anaconda3/envs/m1/lib:$LD_LIBRARY_PATH"`
