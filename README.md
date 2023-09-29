@@ -1,6 +1,6 @@
 # muography-bachelor
 
-Here are instructions to reproduce my bachelors thesis simulation
+Here are instructions to reproduce my bachelor thesis simulation
 
 ## preparations
 
@@ -8,7 +8,7 @@ Here are instructions to reproduce my bachelors thesis simulation
 
 `git clone https://github.com/Martin-SF/muography-bachelor`
 
-### set up conda environment
+### Set up the conda environment
 `conda create -n m1 python=3.10 pip`
 
 `conda activate m1`
@@ -18,7 +18,7 @@ Here are instructions to reproduce my bachelors thesis simulation
 `pip install -r requirements.txt`
 
 
-### compile EcoMug
+### Build EcoMug
 `cd muography-bachelor/computation/EcoMug_pybind11`
 
 `mkdir build`
@@ -29,11 +29,14 @@ Here are instructions to reproduce my bachelors thesis simulation
 
 `make`
 
-### variables (configure for your system)
+### Variables (configure for YOUR system)
 `conda env config vars set PYTHONPATH="$HOME/muography-bachelor/computation/EcoMug_pybind11/build:$PYTHONPATH"`
 
-`conda env config vars set LD_LIBRARY_PATH="$HOME/.local/anaconda3/envs/m1/lib:$LD_LIBRARY_PATH"`
 
-## ready
+(probably not needed!) `conda env config vars set LD_LIBRARY_PATH="$HOME/.local/anaconda3/envs/m1/lib:$LD_LIBRARY_PATH"`
 
-now you can start the `computation/computation.ipynb` and continue there 
+## Done
+
+Don't forget to restart the conda environment!
+
+Now you should be able to run the `computation/computation.ipynb`!
