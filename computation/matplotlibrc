@@ -1,0 +1,65 @@
+backend: pgf
+
+font.family: serif
+font.size: 14.0
+
+pgf.rcfonts: False
+text.usetex: True
+pgf.texsystem: lualatex
+pgf.preamble: \input{header-matplotlib.tex}
+
+lines.markersize : 3.8
+legend.markerscale   : 1
+legend.fancybox: False   # no rounded corners
+
+patch.linewidth: 0.4
+patch.facecolor: 348ABD  # blue
+patch.edgecolor: white
+patch.antialiased: True
+
+axes.facecolor: 3a3d41
+axes.edgecolor: white
+axes.linewidth: 0.8
+axes.grid: True
+axes.titlesize: x-large
+axes.labelsize: medium
+axes.labelcolor: white
+axes.axisbelow: True       # grid/ticks are below elements (e.g., lines, text)
+
+xtick.labelsize: medium
+ytick.labelsize: medium
+
+axes.prop_cycle: cycler('color', ['348ABD', 'E24A33', '8EBA42', '988ED5', '777777', 'FBC15E', 'FFB5B8'])
+                   #348ABD : blue
+                   #E24A33 : red
+                   #8EBA42 : green
+                   #988ED5 : purple
+                   #777777 : gray
+                   #FBC15E : yellow
+                   #FFB5B8 : pink
+
+xtick.color: white
+xtick.direction: out
+
+ytick.color: white
+ytick.direction: out
+
+grid.color: white
+grid.linewidth: 0.4
+grid.alpha: 0.4
+grid.linestyle: -    # solid line
+
+figure.facecolor: 3a3d41
+figure.edgecolor: 3a3d41
+figure.figsize: 5.5118, 3.05
+savefig.pad_inches: 0
+
+boxplot.boxprops.color: white
+boxplot.capprops.color: white
+boxplot.flierprops.color: white
+boxplot.flierprops.markeredgecolor: white
+boxplot.whiskerprops.color: white
+lines.color: white
+savefig.edgecolor: 3a3d41
+savefig.facecolor: 3a3d41
+text.color: white
