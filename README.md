@@ -37,4 +37,3 @@ Here are instructions to reproduce my bachelors thesis simulation
 ## ready
 
 now you can start the `computation/computation.ipynb` and continue there 
-conda create -n m1 python=3.10 pip --y; conda activate m1; pip install -r requirements.txt --y
