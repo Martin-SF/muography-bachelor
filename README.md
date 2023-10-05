@@ -13,10 +13,17 @@ Here are instructions to reproduce my bachelor thesis simulation
 
 `conda activate m1`
 
-`cd muography-bachelor`
+`pip install -r muography-bachelor/requirements.txt`
 
-`pip install -r requirements.txt`
+### environment Variables (configure the paths for YOUR system)
 
+(This is necessary so that the compiled Ecomug module can be found)
+
+`conda env config vars set PYTHONPATH="$HOME/muography-bachelor/computation/EcoMug_pybind11/build:$PYTHONPATH"`
+
+(This can be advantageous if Libpython is not found when a PROPOSAL is imported or other programs fail weirdly (cmake) 
+
+`conda env config vars set LD_LIBRARY_PATH="$HOME/.local/anaconda3/envs/m1/lib:$LD_LIBRARY_PATH"`
 
 ### Build EcoMug
 `cd muography-bachelor/computation/EcoMug_pybind11`
@@ -25,19 +32,15 @@ Here are instructions to reproduce my bachelor thesis simulation
 
 `cd build`
 
+if this makes problems, maybe look into the env_3.10 environment requirement.txt. This environment is the only one that will compile Ecomug when using `phobos`...
+
 `cmake .. -DCMAKE_BUILD_TYPE=Release`
 
 `make`
 
-### Variables (configure for YOUR system)
-`conda env config vars set PYTHONPATH="$HOME/muography-bachelor/computation/EcoMug_pybind11/build:$PYTHONPATH"`
-
-`conda env config vars set PYTHONPATH="$HOME/muography-bachelor/computation:$PYTHONPATH"`
-
-(probably not needed!) `conda env config vars set LD_LIBRARY_PATH="$HOME/.local/anaconda3/envs/m1/lib:$LD_LIBRARY_PATH"`
 
 ## Done
 
-Don't forget to restart the conda environment!
+Don't forget to restart the conda environment! (Als VSCode as whole if you use it (trust me...))
 
-Now you should be able to run the `computation/computation.ipynb`!
+Now you should be able to run `computation/computation.ipynb`!
