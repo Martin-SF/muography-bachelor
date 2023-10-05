@@ -17,9 +17,11 @@ Here are instructions to reproduce my bachelor thesis simulation
 
 ### environment Variables (configure the paths for YOUR system)
 
-(This is necessary so that the compiled Ecomug module can be found)
+(This is necessary so that the compiled Ecomug module and config.py can be found)
 
 `conda env config vars set PYTHONPATH="$HOME/muography-bachelor/computation/EcoMug_pybind11/build:$PYTHONPATH"`
+
+`conda env config vars set PYTHONPATH="$HOME/muography-bachelor/computation:$PYTHONPATH"`
 
 (This can be advantageous if Libpython is not found when PROPOSAL is imported or other programs fail weirdly (cmake for example) 
 
