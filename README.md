@@ -21,7 +21,7 @@ Here are instructions to reproduce my bachelor thesis simulation
 
 `conda env config vars set PYTHONPATH="$HOME/muography-bachelor/computation/EcoMug_pybind11/build:$PYTHONPATH"`
 
-(This can be advantageous if Libpython is not found when a PROPOSAL is imported or other programs fail weirdly (cmake) 
+(This can be advantageous if Libpython is not found when PROPOSAL is imported or other programs fail weirdly (cmake for example) 
 
 `conda env config vars set LD_LIBRARY_PATH="$HOME/.local/anaconda3/envs/m1/lib:$LD_LIBRARY_PATH"`
 
