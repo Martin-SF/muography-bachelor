@@ -26,8 +26,8 @@ client = Client("localhost:8786")  # local client
 ############################################################
 t = stopwatch.stopwatch(title='generating ecomug muons', selfexecutiontime_micros=0, time_unit='s', return_results=True)
 import d_EM_lib as emo
+# client.upload_file('config.py')
 client.upload_file('d_EM_lib.py')
-client.upload_file('config.py')
 reload(emo)
 reload(slib)
 reload(plib)

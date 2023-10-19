@@ -39,8 +39,8 @@ t1 = stopwatch.stopwatch(
 t1.task('initialize proposal, making interpol tables')
 
 import d_pp_lib as proper
+# client.upload_file('config.py')
 client.upload_file('d_pp_lib.py')
-client.upload_file('config.py')
 reload(proper)
 reload(stopwatch)
 reload(plib)
