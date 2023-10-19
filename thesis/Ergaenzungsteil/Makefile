@@ -8,7 +8,7 @@ TeXOptions = -lualatex \
 
 full: FORCE | build
 	latexmk $(TeXOptions) thesis.tex
-	cp build/thesis.pdf 2022_Bachelor_Schoenfeld_Martin.pdf
+	cp build/thesis.pdf ../2022_Bachelor_Ergänzung_Schoenfeld_Martin.pdf
 
 fast: FORCE | build
 	# rm -f thesis.pdf
